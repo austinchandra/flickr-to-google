@@ -1,0 +1,11 @@
+# Python
+venv
+__pycache__
+
+# Application
+outputs
+
+# Secret
+credentials.json
+token.json
+.env
