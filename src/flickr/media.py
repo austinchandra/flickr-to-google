@@ -10,21 +10,23 @@ from query import query_all_paginated, query
 # The downloader can run through the incomplete files linked here; pull image contents
 # to a temp folder, transfer them, then erase on completion.
 
-# TODO: find out whether the destination is Google Drive or Photos.
+# TODO: find out whether the destination is Google Drive or Photos. (Photos)
+# TODO: Add CLI paths to verify, store the OAuth code on a separate file for re-use.
+# TODO: use streaming implementation; use photosets to build a directory (for photo albums).
+# TODO: create directories; create authentication paths for each side; create the transfer code.
 
-# TODO: Testing and error handling: test videos, pagination.
+# TODO: Testing and error handling: test videos, pagination (e.g. on the actual dataset).
 # TODO: Query for albums or photosets.
 
 async def query_all_media():
     """Queries for all photos and returns a list of media objects."""
 
-    queries = await query_all_paginated(token, 'flickr.people.getPhotos', user_id=user_id)
-
-    media = await asyncio.gather(
-        *[query_media_page(query) for query in queries]
+    return await query_all_paginated(
+        query_media_page,
+        token,
+        method='flickr.people.getPhotos',
+        user_id=user_id
     )
-
-    return flatten(media)
 
 async def query_media_page(page_query):
     """Queries a media page and returns a list of media for that page."""
@@ -54,7 +56,13 @@ async def query_media_source(photo_id):
     # URLs cannot be constructed using the original IDs without a loss in quality:
     # - https://www.flickr.com/services/api/misc.urls.html
 
-    response = await query(token, 'flickr.photos.getSizes', photo_id=photo_id)
+    # TODO: token must be initialized in this context, somehow
+    response = await query(
+        token,
+        method='flickr.photos.getSizes',
+        photo_id=photo_id
+    )
+
     sizes = response['sizes']['size']
 
     assert len(sizes) > 0
@@ -66,11 +74,17 @@ async def query_media_source(photo_id):
 async def query_media_metadata(photo_id):
     """Queries for a media's metadata and returns the relevant fields."""
 
-    response = await query(token, 'flickr.photos.getInfo', photo_id=photo_id)
+    response = await query(
+        token,
+        method='flickr.photos.getInfo',
+        photo_id=photo_id
+    )
+
     media = response['photo']
 
     metadata = {}
 
+    metadata['id'] = media['id']
     metadata['title'] = media['title']['_content']
     metadata['posted'] = media['dates']['posted']
     metadata['format'] = media['originalformat']
@@ -84,11 +98,6 @@ def combine_media_fields(url, metadata):
     data['url'] = url
 
     return data
-
-def flatten(l):
-    """Flattens a list `l`."""
-
-    return [subitem for item in l for subitem in item]
 
 token = generate_oauth_token()
 user_id = '200072260@N02'

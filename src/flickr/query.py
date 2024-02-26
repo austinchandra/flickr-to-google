@@ -1,5 +1,6 @@
 import httpx
 import json
+import asyncio
 
 from credentials import api_key
 
@@ -34,35 +35,40 @@ rest_url = 'https://www.flickr.com/services/rest/'
 # https://stackoverflow.com/questions/27435284/multiprocessing-vs-multithreading-vs-asyncio
 # https://github.com/encode/httpx
 
-async def query_all_paginated(oauth_token, method, **kwargs):
-    """Returns a list of all paginated queries."""
+async def query_all_paginated(page_handler, oauth_token, **kwargs):
+    """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""
 
-    page_limit = await query_page_limit(oauth_token, method, **kwargs)
+    page_limit = await query_page_limit(oauth_token, **kwargs)
 
     # Repeat the original page query here, for simplicity.
 
-    return [
-        query(oauth_token, method, page=page, **kwargs) for page in range(1, page_limit + 1)
+    queries = [
+        query(oauth_token, page=page, **kwargs) for page in range(1, page_limit + 1)
     ]
 
-async def query(oauth_token, method, **kwargs):
+    results = await asyncio.gather(
+        *[page_handler(query) for query in queries]
+    )
+
+    return flatten(results)
+
+async def query(oauth_token, **kwargs):
     """Performs an API query and returns the JSON response."""
 
-    payload = create_query_payload(oauth_token, method, **kwargs)
+    payload = create_query_payload(oauth_token, **kwargs)
 
     async with httpx.AsyncClient() as client:
         response = await client.get(rest_url, params=payload)
         return unwrap_response_json(response.text)
 
-def create_query_payload(oauth_token, method, **kwargs):
-    """Creates a query payload with the given authorization, method, and key-value pairs."""
+def create_query_payload(oauth_token, **kwargs):
+    """Creates a query payload with the given authorization and key-value pairs."""
 
     payload = {}
 
     # Set known arguments first to enable over-writing these.
     payload['api_key'] = api_key
     payload['format'] = 'json'
-    payload['method'] = method
 
     for _, (k, v) in enumerate(oauth_token.items()):
         # TODO: validation?
@@ -82,10 +88,10 @@ def unwrap_response_json(contents):
 
     return json.loads(contents[start:end])
 
-async def query_page_limit(oauth_token, method, **kwargs):
+async def query_page_limit(oauth_token, **kwargs):
     """Queries the given request and returns the paginated page limit."""
 
-    response = await query(oauth_token, method, **kwargs)
+    response = await query(oauth_token, **kwargs)
     return parse_response_page_limit(response)
 
 def parse_response_page_limit(response):
@@ -105,3 +111,7 @@ def parse_response_page_limit(response):
 
     raise Exception('Page limit requested for non-paginated request')
 
+def flatten(l):
+    """Flattens a list `l`."""
+
+    return [subitem for item in l for subitem in item]
