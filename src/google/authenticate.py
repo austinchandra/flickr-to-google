@@ -5,8 +5,11 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 # If modifying these scopes, delete the file token.json.
-# TODO: change these scopes (perhaps to write only within a folder)
-SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+SCOPES = [
+    "https://www.googleapis.com/auth/photoslibrary.appendonly",
+    "https://www.googleapis.com/auth/photoslibrary.sharing",
+    "https://www.googleapis.com/auth/photoslibrary.readonly",
+]
 
 creds = None
 

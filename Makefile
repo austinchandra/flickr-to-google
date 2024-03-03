@@ -2,8 +2,15 @@ install:
 	pip3 install -r requirements.txt
 
 directory:
-	mkdir -p outputs
-	python3 src/photoset_directory.py
+	rm -rf outputs
+	python3 src/flickr/directory.py
 
-transfer:
-	python3 src/photoset_transfer.py
+authenticate-google:
+	rm -f token.json
+	python3 src/google/authenticate.py
+
+albums:
+	python3 src/google/albums.py
+
+photos:
+	python3 src/google/photos.py

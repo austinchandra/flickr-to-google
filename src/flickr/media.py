@@ -1,6 +1,5 @@
 import asyncio
 
-from oauth import generate_oauth_token
 from query import query_all_paginated, query
 
 # Perform all queries and validate the responses; extract information into text contents
@@ -18,12 +17,15 @@ from query import query_all_paginated, query
 # TODO: Testing and error handling: test videos, pagination (e.g. on the actual dataset).
 # TODO: Query for albums or photosets.
 
+# TODO: build the directory: can run through each photoset, create the resulting directory
+# files; for each, pull the relevant photo information from the list of photos, then remove
+# these (after transferred); build the photostream directory from the remaining photos.
+
 async def query_all_media():
     """Queries for all photos and returns a list of media objects."""
 
     return await query_all_paginated(
         query_media_page,
-        token,
         method='flickr.people.getPhotos',
         user_id=user_id
     )
@@ -56,9 +58,7 @@ async def query_media_source(photo_id):
     # URLs cannot be constructed using the original IDs without a loss in quality:
     # - https://www.flickr.com/services/api/misc.urls.html
 
-    # TODO: token must be initialized in this context, somehow
     response = await query(
-        token,
         method='flickr.photos.getSizes',
         photo_id=photo_id
     )
@@ -75,7 +75,6 @@ async def query_media_metadata(photo_id):
     """Queries for a media's metadata and returns the relevant fields."""
 
     response = await query(
-        token,
         method='flickr.photos.getInfo',
         photo_id=photo_id
     )
@@ -99,11 +98,4 @@ def combine_media_fields(url, metadata):
 
     return data
 
-token = generate_oauth_token()
 user_id = '200072260@N02'
-
-async def test():
-    directory = await query_all_media()
-    print(directory)
-
-asyncio.run(test())

@@ -1,6 +1,5 @@
 import asyncio
 
-from oauth import generate_oauth_token
 from query import query_all_paginated, query
 
 # TODO: Test pagination in photos (within photoset).
@@ -10,7 +9,6 @@ async def query_photosets():
 
     return await query_all_paginated(
         query_photoset_page,
-        token,
         method='flickr.photosets.getList',
         user_id=user_id
     )
@@ -49,7 +47,6 @@ async def query_photoset_photos(photoset_id):
 
     return await query_all_paginated(
         query_photoset_photos_page,
-        token,
         method='flickr.photosets.getPhotos',
         photoset_id=photoset_id,
         user_id=user_id
@@ -71,11 +68,5 @@ def combine_photoset_fields(metadata, photo_ids):
 
     return data
 
-token = generate_oauth_token()
+# TODO: pull the user_id from the same cache as that used with authentication
 user_id = '200072260@N02'
-
-async def test():
-    directory = await query_photosets()
-    print(directory)
-
-asyncio.run(test())
