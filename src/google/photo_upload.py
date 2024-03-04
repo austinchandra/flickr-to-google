@@ -31,11 +31,11 @@ async def upload_all_photos():
 
     while start < len(requests):
         authenticate()
-        # TODO: Log
 
         end = min(len(requests), start + request_partition_size)
         # Batch item creations must be performed sequentially.
         responses = [await request for request in requests[start:end]]
+        # TODO: Log responses periodically
         start += request_partition_size
 
     log_photos_uploaded(responses)
@@ -171,7 +171,6 @@ def update_photo_data(dirpath, photo, media_id):
 
 def get_response_uploaded_photos(photos, response):
     """Returns a list of (photo, media_id) tuples for photos for which uploads were successful."""
-    # TODO: add periodic logging
 
     if response.status_code != 200:
         return []

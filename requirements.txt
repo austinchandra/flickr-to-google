@@ -1,4 +1,3 @@
-flickrapi
 python-dotenv
 Authlib
 httpx
