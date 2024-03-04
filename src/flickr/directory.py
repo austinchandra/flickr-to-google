@@ -27,12 +27,10 @@ async def create_directory():
     write_photo_directory_files(photos, photosets)
 
 def write_photoset_directory_files(photosets):
-    """Writes directory files for `photosets` and the photostream."""
+    """Writes directory files for `photosets`."""
 
     for photoset in photosets:
         write_photoset_directory_file(photoset)
-
-    write_photostream_directory_file()
 
 def write_photo_directory_files(photos, photosets):
     """Writes directory files for `photos` given `photosets`."""
@@ -78,22 +76,6 @@ def write_photoset_directory_file(photoset):
     path = create_photoset_metadata_path(pruned_photoset)
     write_json_to_file(path, pruned_photoset)
 
-def write_photostream_directory_file():
-    """Writes a metadata file for `photostream`."""
-
-    path = create_photostream_metadata_path()
-    metadata = create_photostream_metadata()
-    write_json_to_file(path, metadata)
-
-def create_photostream_metadata():
-    """Returns a metadata object for the photostream album."""
-
-    metadata = {
-        'title': 'Photostream',
-    }
-
-    return metadata
-
 def get_pruned_photoset_metadata(photoset):
     """Returns a pruned `photoset` object removing fields that are not needed."""
 
@@ -131,11 +113,6 @@ def create_photostream_photo_path(photo):
     """Creates the photo path for `photo` within the photostream directory."""
 
     return create_output_file_path('photostream/{}.json'.format(photo['id']))
-
-def create_photostream_metadata_path():
-    """Creates the metadata path within the photostream directory."""
-
-    return create_output_file_path('photostream/metadata.json')
 
 def create_photoset_photo_path(photo, photoset_id):
     """Creates the photo path for `photo` within the photoset directory for `photoset_id`."""

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from post import post
+from authenticate import authenticate
 
 # TODO: move to constants
 endpoint = 'https://photoslibrary.googleapis.com/v1/albums'
@@ -15,6 +16,8 @@ album_id_key = 'photos_album_id'
 async def create_all_albums():
     """Attempts to create all remaining albums and updates the directory files accordingly, including
     the Photos album ID on success, then returns a list of created album IDs."""
+
+    authenticate()
 
     albums = get_albums_to_create()
 
@@ -67,7 +70,7 @@ async def create_photos_album(album):
     """Attempts to create `album` and updates its directory file."""
 
     payload = create_request_payload(album)
-    response = await post(endpoint, payload)
+    response = await post(endpoint, data=payload)
 
     photo_album_id = get_created_album_id(response)
 
@@ -81,8 +84,7 @@ def update_album_metadata(album, photo_album_id):
 
     album[album_id_key] = photo_album_id
 
-    directory = album['id'] if 'id' in album else 'photostream'
-    path = get_album_metadata_path(directory)
+    path = get_album_metadata_path(album['id'])
 
     with open(path, 'w') as file:
         contents = json.dumps(album)
