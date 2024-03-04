@@ -34,3 +34,6 @@ def authenticate():
     # Save the credentials for the next run
     with open("token.json", "w") as token:
         token.write(creds.to_json())
+
+
+# TODO: Run an initial authentication (i.e. if __main__)

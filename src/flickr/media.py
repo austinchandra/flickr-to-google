@@ -2,24 +2,8 @@ import asyncio
 
 from query import query_all_paginated, query
 
-# Perform all queries and validate the responses; extract information into text contents
-# to be written to disk; write these to disk, one by one. Set up handling albums such
-# that photos queried through getPhotos can be linked to their respective albums.
-
-# The downloader can run through the incomplete files linked here; pull image contents
-# to a temp folder, transfer them, then erase on completion.
-
-# TODO: find out whether the destination is Google Drive or Photos. (Photos)
-# TODO: Add CLI paths to verify, store the OAuth code on a separate file for re-use.
-# TODO: use streaming implementation; use photosets to build a directory (for photo albums).
-# TODO: create directories; create authentication paths for each side; create the transfer code.
-
-# TODO: Testing and error handling: test videos, pagination (e.g. on the actual dataset).
-# TODO: Query for albums or photosets.
-
-# TODO: build the directory: can run through each photoset, create the resulting directory
-# files; for each, pull the relevant photo information from the list of photos, then remove
-# these (after transferred); build the photostream directory from the remaining photos.
+# TODO: move to an auth file
+user_id = '200072260@N02'
 
 async def query_all_media():
     """Queries for all photos and returns a list of media objects."""
@@ -85,6 +69,7 @@ async def query_media_metadata(photo_id):
 
     metadata['id'] = media['id']
     metadata['title'] = media['title']['_content']
+    metadata['description'] = media['description']['_content']
     metadata['posted'] = media['dates']['posted']
     metadata['format'] = media['originalformat']
 
@@ -97,5 +82,3 @@ def combine_media_fields(url, metadata):
     data['url'] = url
 
     return data
-
-user_id = '200072260@N02'

@@ -4,6 +4,9 @@ from query import query_all_paginated, query
 
 # TODO: Test pagination in photos (within photoset).
 
+# TODO: pull the user_id from the same cache as that used with authentication
+user_id = '200072260@N02'
+
 async def query_photosets():
     """Queries for all photosets and returns a list of photoset objects."""
 
@@ -68,5 +71,3 @@ def combine_photoset_fields(metadata, photo_ids):
 
     return data
 
-# TODO: pull the user_id from the same cache as that used with authentication
-user_id = '200072260@N02'

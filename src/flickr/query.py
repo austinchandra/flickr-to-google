@@ -9,32 +9,8 @@ rest_url = 'https://www.flickr.com/services/rest/'
 
 # TODO: modify per_page to decrease the number of queries.
 
-# Query in a callback (on separate thread); return a handle on the thread to be joined.
-# This seems the typical solution to handle concurrency; async/await is another option,
-# using asyncio; can then use a thread pool (or process pool, for writing to disk, but
-# this is unlikely to be necessary):
-
-# https://docs.python.org/3/library/asyncio.html
-# - https://docs.python.org/3/library/asyncio-task.html
-# - https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.run_in_executor
-
-# Will need a mutex to handle shared memory:
-# - https://docs.python.org/3/library/asyncio-sync.html#asyncio.Lock
-
-# Asyncio is not thread-safe, meaning these values cannot be accessed across threads
-# (but within a single thread, i.e. the calling thread, these can be treated using standard
-# parallelism).
-
-# To run multiple requests (and await the result), akin to a thread spawn/join on all:
-# https://docs.python.org/3/library/asyncio-task.html#asyncio.gather
-# The paginated query can await the first query; then, create a set of async queries to
-# be performed (can duplicate the first query here, to keep the interface clean); return
-# these as a list, in which they may be wrapped and gathered accordingly.
-
-# Can take advantage of WebSockets with built-in async (and remove overhead from multi-threading).
-
-# https://stackoverflow.com/questions/27435284/multiprocessing-vs-multithreading-vs-asyncio
-# https://github.com/encode/httpx
+# TODO: attempt to intialize this from a cache; move to a class object
+oauth_token = generate_oauth_token()
 
 async def query_all_paginated(page_handler, **kwargs):
     """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""
@@ -116,6 +92,3 @@ def flatten(l):
     """Flattens a list `l`."""
 
     return [subitem for item in l for subitem in item]
-
-# TODO: attempt to intialize this from a cache; move to a class object
-oauth_token = generate_oauth_token()

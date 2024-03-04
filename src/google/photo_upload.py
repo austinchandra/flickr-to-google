@@ -149,11 +149,11 @@ def create_batch_media_item(photo):
     """Returns a batch media item for `photo`."""
 
     file_name = '{}/{}'.format(photo['title'], photo['format'])
+    description = photo['description']
     upload_token = '{}'.format(photo[photo_upload_token_key])
 
     return {
-        # TODO: Include descriptions in the original query
-        'description': '',
+        'description': description,
         'simpleMediaItem': {
             'fileName': file_name,
             'uploadToken': upload_token,

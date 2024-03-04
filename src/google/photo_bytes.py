@@ -9,7 +9,7 @@ from post import post, create_headers
 from authenticate import authenticate
 from utils import read_json_file, write_json_file, get_photo_filepaths
 
-# Can test this at small-scale with a few hundred photos/videos, etc.
+# TODO: Can test this at small-scale with a few dozen photos/videos, etc.
 
 # TODO: Move with the others
 endpoint = 'https://photoslibrary.googleapis.com/v1/uploads'

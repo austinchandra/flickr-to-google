@@ -5,9 +5,6 @@ from pathlib import Path
 from media import query_all_media
 from photosets import query_photosets
 
-# TODO: authentication; test cases against a basic account, for all functions; this enables partial
-# certainty against functionality, in which the production situation differs only with scale.
-
 # TODO: make this configurable. Clean up modules: use a single base module that can run separate
 # commands, importing these from the child directories. Can set configurations in the filesystem, in
 # ~/.<config file>; can export constants from the base module. At the same time, should make certain
@@ -124,12 +121,5 @@ def create_photoset_metadata_path(photoset):
 
     return create_output_file_path('{}/metadata.json'.format(photoset['id']))
 
+# TODO: handle running modules
 asyncio.run(create_directory())
-
-# TODO: create query class that exposes public methods, receives a token as input
-# (or pulls it from a file); should have an authentication pathway, which takes
-# place first, after which the token may be accessed from the query methods directly,
-# and nothing else needs to know about it; should use a query class, which would
-# be the most natural, although the token may be loaded in the file.
-
-# TODO: test
