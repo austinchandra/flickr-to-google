@@ -13,7 +13,7 @@ SCOPES = [
 
 creds = None
 
-def authenticate():
+def refresh_authentication():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -34,6 +34,3 @@ def authenticate():
     # Save the credentials for the next run
     with open("token.json", "w") as token:
         token.write(creds.to_json())
-
-
-# TODO: Run an initial authentication (i.e. if __main__)

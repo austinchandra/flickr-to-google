@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 
+# TODO: pass these in from the CLI
+
 # Load the .env context:
 load_dotenv()
 

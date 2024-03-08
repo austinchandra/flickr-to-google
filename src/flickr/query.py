@@ -2,12 +2,9 @@ import httpx
 import json
 import asyncio
 
-from credentials import api_key
-from oauth import generate_oauth_token
-
-rest_url = 'https://www.flickr.com/services/rest/'
-
-# TODO: modify per_page to decrease the number of queries.
+from .credentials import api_key
+from .oauth import generate_oauth_token
+from .constants import Endpoints, QUERIES_PER_PAGE
 
 # TODO: attempt to intialize this from a cache; move to a class object
 oauth_token = generate_oauth_token()
@@ -15,30 +12,30 @@ oauth_token = generate_oauth_token()
 async def query_all_paginated(page_handler, **kwargs):
     """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""
 
-    page_limit = await query_page_limit(**kwargs)
+    page_limit = await _query_page_limit(**kwargs)
 
     # Repeat the original page query here, for simplicity.
 
     queries = [
-        query(page=page, **kwargs) for page in range(1, page_limit + 1)
+        query(page=page, per_page=QUERIES_PER_PAGE, **kwargs) for page in range(1, page_limit + 1)
     ]
 
     results = await asyncio.gather(
         *[page_handler(query) for query in queries]
     )
 
-    return flatten(results)
+    return _flatten(results)
 
 async def query(**kwargs):
     """Performs an API query and returns the JSON response."""
 
-    payload = create_query_payload(**kwargs)
+    payload = _create_query_payload(**kwargs)
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(rest_url, params=payload)
-        return unwrap_response_json(response.text)
+        response = await client.get(Endpoints.REST, params=payload)
+        return _unwrap_response_json(response.text)
 
-def create_query_payload(**kwargs):
+def _create_query_payload(**kwargs):
     """Creates a query payload with the given authorization and key-value pairs."""
 
     payload = {}
@@ -48,7 +45,6 @@ def create_query_payload(**kwargs):
     payload['format'] = 'json'
 
     for _, (k, v) in enumerate(oauth_token.items()):
-        # TODO: validation?
         payload[k] = v
 
     for _, (k, v) in enumerate(kwargs.items()):
@@ -56,7 +52,7 @@ def create_query_payload(**kwargs):
 
     return payload
 
-def unwrap_response_json(contents):
+def _unwrap_response_json(contents):
     """Extracts the inner json from contents of form `jsonFlickrApi(<json>)`."""
 
     start = contents.find('{')
@@ -65,13 +61,13 @@ def unwrap_response_json(contents):
 
     return json.loads(contents[start:end])
 
-async def query_page_limit(**kwargs):
+async def _query_page_limit(**kwargs):
     """Queries the given request and returns the paginated page limit."""
 
     response = await query(**kwargs)
-    return parse_response_page_limit(response)
+    return _parse_response_page_limit(response)
 
-def parse_response_page_limit(response):
+def _parse_response_page_limit(response):
     """Returns the total number of pages in a paginated query."""
 
     # Find the first member that is a dictionary with key `pages`, then return the value:
@@ -88,7 +84,7 @@ def parse_response_page_limit(response):
 
     raise Exception('Page limit requested for non-paginated request')
 
-def flatten(l):
+def _flatten(l):
     """Flattens a list `l`."""
 
     return [subitem for item in l for subitem in item]

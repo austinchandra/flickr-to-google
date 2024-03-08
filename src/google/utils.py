@@ -1,25 +1,24 @@
-import json
-import os
+from pathlib import Path
 
-def get_photo_filepaths(dirpath, filenames):
-    """Returns a list of paths for the photos at `dirpath` with filenames `filenames`."""
+from common.files import read_json_file
 
-    photo_filenames = [
-        filename for filename in filenames if 'metadata.json' not in filename
-    ]
+def read_album_metadata(directory_path):
+    """Returns the album metadata for the album at `directory_path`."""
 
-    return [os.path.join(dirpath, filename) for filename in photo_filenames]
+    path = get_album_metadata_path(directory_path)
+    return read_json_file(path)
 
-# TODO: make this a common utility
-def read_json_file(path):
-    """Reads and returns the JSON object at `path`."""
+def get_directory_path(outputs_path, directory):
+    """Returns a `directory_path` by concatenating the components."""
 
-    with open(path, 'r') as file:
-        return json.load(file)
+    return Path(f'{outputs_path}/{directory}')
 
-def write_json_file(path, data):
-    """Writes the JSON data to `path`."""
+def get_album_metadata_path(directory_path):
+    """Returns the path for an album's `metadata.json` file given `directory_path`."""
 
-    with open(path, 'w') as file:
-        contents = json.dumps(data)
-        file.write(contents)
+    return Path(f'{directory_path}/metadata.json')
+
+def get_photo_data_path(directory_path, photo):
+    """Returns the path for the photo entry `photo` at `directory_path`."""
+
+    return Path('{}/{}.json'.format(directory_path, photo['id']))

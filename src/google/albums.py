@@ -3,99 +3,79 @@ import asyncio
 import os
 from pathlib import Path
 
-from post import post
-from authenticate import authenticate
+from .rest import post
+from .authenticate import refresh_authentication
+from .constants import Endpoints, PhotoEntryKeys
+from .utils import read_album_metadata, get_album_metadata_path, get_directory_path
+from common.files import write_json_file, read_json_file
 
-# TODO: move to constants
-endpoint = 'https://photoslibrary.googleapis.com/v1/albums'
-# TODO: Enable this path to be set by the user; add unicode support
-directory_path = 'outputs'
-# TODO: Move to constants
-album_id_key = 'photos_album_id'
+# TODO: Enable this path to be set by the user; add unicode support?
+outputs_path = 'outputs'
 
 async def create_all_albums():
     """Attempts to create all remaining albums and updates the directory files accordingly, including
     the Photos album ID on success, then returns a list of created album IDs."""
 
-    authenticate()
+    refresh_authentication()
 
-    albums = get_albums_to_create()
+    requests = _get_requests()
 
     # Run this synchronously, as Google Photos disallows concurrent writes.
-    responses = [
-        await create_photos_album(album) for album in albums
-    ]
+    responses = [await request for request in requests]
 
-    log_albums_created(albums, responses)
+    _print_summary(responses, requests)
 
     return responses
 
-def log_albums_created(albums, responses):
-    """Prints a summary of the fraction of albums created."""
+def _print_summary(responses, requests):
+    """Prints a summary of the proportion of albums created."""
 
-    created = [response for response in responses if response is not None]
+    num_created = len([r for r in responses if r is not None])
+    num_attempted = len(requests)
 
-    print(
-        "Created {} out of {} remaining albums.".format(
-            len(created), len(albums)
-        )
-    )
+    print(f'Created {num_created} out of {num_attempted} remaining albums.')
 
-def get_albums_to_create():
-    """Reads all albums within the directory and returns a list of uncreated albums."""
+def _get_requests():
+    """Returns a list of pending requests."""
 
-    albums = []
+    requests = []
 
-    _, directories, _ = next(os.walk(directory_path))
-
-    for directory in directories:
-        album = read_album_metadata(directory)
-
-        if album_id_key in album:
+    for directory_path, _, filenames in os.walk(outputs_path):
+        if directory_path == outputs_path:
             continue
 
-        albums.append(album)
+        album = read_album_metadata(directory_path)
 
-    return albums
+        if PhotoEntryKeys.GOOGLE_ALBUM_ID in album:
+            continue
 
-def read_album_metadata(directory):
-    """Reads an album at `directory` and returns a dictionary containing its information."""
+        requests.append(_create_album(album))
 
-    path = get_album_metadata_path(directory)
+    return requests
 
-    with open(path, 'r') as file:
-        return json.load(file)
-
-async def create_photos_album(album):
+async def _create_album(album):
     """Attempts to create `album` and updates its directory file."""
 
-    payload = create_request_payload(album)
-    response = await post(endpoint, data=payload)
+    payload = _create_request_payload(album)
+    response = await post(Endpoints.ALBUMS, data=payload)
 
-    photo_album_id = get_created_album_id(response)
+    photo_album_id = _parse_album_id(response)
 
     if photo_album_id is not None:
-        update_album_metadata(album, photo_album_id)
+        _update_album_entry(album, photo_album_id)
 
     return photo_album_id
 
-def update_album_metadata(album, photo_album_id):
+def _update_album_entry(album, photo_album_id):
     """Updates the album's metadata file given the created `photo_album_id`."""
 
-    album[album_id_key] = photo_album_id
+    album[PhotoEntryKeys.GOOGLE_ALBUM_ID] = photo_album_id
 
-    path = get_album_metadata_path(album['id'])
+    directory_path = get_directory_path(outputs_path, album['id'])
+    path = get_album_metadata_path(directory_path)
+    write_json_file(path, album)
 
-    with open(path, 'w') as file:
-        contents = json.dumps(album)
-        file.write(contents)
-
-def get_album_metadata_path(directory):
-    """Returns the path to the `metadata` file for `directory`."""
-
-    return Path(f'{directory_path}/{directory}/metadata.json')
-
-def create_request_payload(album):
+def _create_request_payload(album):
     """Generates a request payload to create a new album `album`."""
 
     title = album['title']
@@ -108,9 +88,7 @@ def create_request_payload(album):
 
     return json.dumps(payload)
 
-def get_created_album_id(response):
+def _parse_album_id(response):
     """Returns the album ID or `None` on failure."""
 
     return response.json().get('id', None)
-
-asyncio.run(create_all_albums())

@@ -10,14 +10,28 @@ async def post(url, headers=None, **kwargs):
     if headers is None:
         headers = create_headers()
 
-    return await send_request(
+    return await _send_request(
         'POST',
         url,
         headers,
         **kwargs,
     )
 
-def read_oauth_token():
+def create_headers(**kwargs):
+    """Returns authenticated HTTP headers populated with `header_args`."""
+
+    oauth_token = _read_oauth_token()
+
+    headers = {
+        'Authorization': f'Bearer {oauth_token}'
+    }
+
+    for _, (k, v) in enumerate(kwargs.items()):
+        headers[k] = v
+
+    return headers
+
+def _read_oauth_token():
     """Returns the cached OAuth token."""
 
     # TODO: configure path
@@ -26,7 +40,7 @@ def read_oauth_token():
 
     return token['token']
 
-async def send_request(method, url, headers, **kwargs):
+async def _send_request(method, url, headers, **kwargs):
     """Sends an authenticated request and returns the response."""
 
     request = httpx.Request(
@@ -38,17 +52,3 @@ async def send_request(method, url, headers, **kwargs):
 
     async with httpx.AsyncClient() as client:
         return await client.send(request)
-
-def create_headers(**kwargs):
-    """Returns authenticated HTTP headers populated with `header_args`."""
-
-    oauth_token = read_oauth_token()
-
-    headers = {
-        'Authorization': f'Bearer {oauth_token}'
-    }
-
-    for _, (k, v) in enumerate(kwargs.items()):
-        headers[k] = v
-
-    return headers
