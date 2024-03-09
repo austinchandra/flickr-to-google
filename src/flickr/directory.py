@@ -4,7 +4,8 @@ from pathlib import Path
 
 from .photos import query_all_photos
 from .photosets import query_photosets
-from common.files import write_json_file
+from common.directory import write_album_metadata, write_photo_data
+from common.log import print_timestamped, print_separator
 
 # TODO: make this configurable. Clean up modules: use a single base module that can run separate
 # commands, importing these from the child directories. Can set configurations in the filesystem, in
@@ -16,6 +17,8 @@ output_path = 'outputs'
 async def create_directory():
     """Creates a directory of all photosets and photos in `outputs`."""
 
+    _print_initiation()
+
     photos = await query_all_photos()
     photosets = await query_photosets()
 
@@ -23,6 +26,8 @@ async def create_directory():
 
     _write_photoset_directory_files(photosets)
     _write_photo_directory_files(photos, photosets)
+
+    _print_summary()
 
 def _write_photoset_directory_files(photosets):
     """Writes directory files for `photosets`."""
@@ -66,8 +71,7 @@ def _write_photoset_directory_file(photoset):
     """Writes a metadata file for `photoset` to `outputs`."""
 
     pruned_photoset = _get_pruned_photoset_metadata(photoset)
-    path = _create_photoset_metadata_path(pruned_photoset)
-    write_json_file(path, pruned_photoset)
+    write_album_metadata(pruned_photoset)
 
 def _get_pruned_photoset_metadata(photoset):
     """Returns a pruned `photoset` object removing fields that are not needed."""
@@ -80,32 +84,15 @@ def _get_pruned_photoset_metadata(photoset):
 def _write_photo_directory_file(photo, photoset_id=None):
     """Writes a photo directory file for photo within the directory corresponding to `photoset_id`."""
 
-    if photoset_id is None:
-        path = _create_photostream_photo_path(photo)
-    else:
-        path = _create_photoset_photo_path(photo, photoset_id)
+    directory = 'photostream' if photoset_id is None else photoset_id
+    write_photo_data(directory, photo)
 
-    write_json_file(path, photo)
+def _print_initiation():
+    """Prints a message on initiating `create_directory`."""
 
-def _create_output_file_path(path_string):
-    """Creates a path object within `outputs` at `path_string`."""
+    print_timestamped('Beginning to create the directory.')
 
-    path = Path(f'{output_path}/{path_string}')
-    path.parent.mkdir(parents=True, exist_ok=True)
+def _print_summary():
+    """Prints a message on completion."""
 
-    return path
-
-def _create_photostream_photo_path(photo):
-    """Creates the photo path for `photo` within the photostream directory."""
-
-    return _create_output_file_path('photostream/{}.json'.format(photo['id']))
-
-def _create_photoset_photo_path(photo, photoset_id):
-    """Creates the photo path for `photo` within the photoset directory for `photoset_id`."""
-
-    return _create_output_file_path('{}/{}.json'.format(photoset_id, photo['id']))
-
-def _create_photoset_metadata_path(photoset):
-    """Creates the metadata path for `photoset`."""
-
-    return _create_output_file_path('{}/metadata.json'.format(photoset['id']))
+    print_timestamped('Created the directory.')
