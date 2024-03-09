@@ -1,10 +1,13 @@
+import os
 from pathlib import Path
 
 from .files import read_json_file, write_json_file
+from .config import create_path_from_base
 
 def get_outputs_path():
-    # TODO: fix
-    return 'outputs'
+    """Returns a path to `outputs`."""
+
+    return create_path_from_base('outputs')
 
 def read_album_metadata(directory):
     """Returns the album metadata for the album at `directory`."""
@@ -24,7 +27,7 @@ def get_album_metadata_path(directory):
     """Returns a path to the album metadata.json."""
 
     directory_path = get_directory_path(directory)
-    return Path(f'{directory_path}/metadata.json')
+    return Path(os.path.join(directory_path, 'metadata.json'))
 
 def read_photo_data(directory, filename):
     """Returns a photo data object from `directory/filename`."""
@@ -45,13 +48,13 @@ def get_photo_data_path(directory, filename):
     """Returns a path to the photo data entry."""
 
     directory_path = get_directory_path(directory)
-    return Path(f'{directory_path}/{filename}')
+    return Path(os.path.join(directory_path, filename))
 
 def get_directory_path(directory):
     """Returns a `directory_path` by concatenating the components."""
 
     outputs_path = get_outputs_path()
-    return Path(f'{outputs_path}/{directory}')
+    return Path(os.path.join(outputs_path, directory))
 
 def get_photo_filename(photo):
     """Returns the filename corresponding to `photo`."""

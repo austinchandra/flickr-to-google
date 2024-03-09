@@ -5,7 +5,7 @@ from pathlib import Path
 from functools import reduce
 
 from .rest import post
-from .authenticate import refresh_authentication
+from .authenticate import authenticate_user
 from .constants import (
     PhotoEntryKeys,
     CONTENT_BATCH_LIMIT,
@@ -34,7 +34,7 @@ async def upload_photos():
     start, bound = 0, len(requests)
 
     while start < bound:
-        refresh_authentication()
+        authenticate_user()
 
         end = min(start + REQUESTS_BATCH_SIZE, bound)
         # Batch item creations must be performed sequentially. Note that it is possible to run bytes upload
@@ -124,7 +124,7 @@ def _print_chunk_summary(responses):
     succeeded_count, attempted_count = _reduce_response_counts(responses)
 
     print_timestamped(
-        f'Uploaded {succeeded_count} out of {attempted_count} photos.'
+        f'Uploaded {succeeded_count} out of {attempted_count} photo(s).'
     )
 
 def _print_summary(responses):
@@ -134,7 +134,7 @@ def _print_summary(responses):
 
     print_separator()
     print_timestamped(
-        f'Uploaded {succeeded_count} out of {attempted_count} remaining photos.'
+        f'Uploaded {succeeded_count} out of {attempted_count} remaining photo(s).'
     )
 
 def _parse_num_photos(requests):

@@ -1,12 +1,12 @@
 import asyncio
 
 from .query import query_all_paginated, query
-
-# TODO: pull the user_id from the same cache as that used with authentication
-user_id = '200072260@N02'
+from .config import read_user_id
 
 async def query_photosets():
     """Queries for all photosets and returns a list of photoset objects."""
+
+    user_id = read_user_id()
 
     return await query_all_paginated(
         _query_photoset_page,
@@ -45,6 +45,8 @@ def _parse_photoset_metadata(photoset):
 
 async def _query_photoset_photos(photoset_id):
     """Queries for the photos in the photoset and returns a list of the photo IDs."""
+
+    user_id = read_user_id()
 
     return await query_all_paginated(
         _query_photoset_photos_page,

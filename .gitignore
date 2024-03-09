@@ -7,5 +7,6 @@ outputs
 
 # Secret
 credentials.json
+flickr_credentials.json
 token.json
 .env

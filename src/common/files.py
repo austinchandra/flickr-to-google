@@ -12,4 +12,3 @@ def write_json_file(path, data):
     with open(path, 'w') as file:
         contents = json.dumps(data)
         file.write(contents)
-

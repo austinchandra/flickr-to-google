@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from .rest import post
-from .authenticate import refresh_authentication
+from .authenticate import authenticate_user
 from .constants import Endpoints, PhotoEntryKeys
 from common.directory import (
     read_album_metadata,
@@ -17,7 +17,7 @@ async def create_albums():
     """Attempts to create all remaining albums and updates the directory files accordingly, including
     the Photos album ID on success, then returns a list of created album IDs."""
 
-    refresh_authentication()
+    authenticate_user()
 
     requests = _get_requests()
 
@@ -45,7 +45,7 @@ def _print_summary(responses, requests):
     num_attempted = len(requests)
 
     print_timestamped(
-        f'Created {num_created} out of {num_attempted} remaining albums.'
+        f'Created {num_created} out of {num_attempted} remaining album(s).'
     )
 
 def _get_requests():

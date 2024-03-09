@@ -2,12 +2,8 @@ import httpx
 import json
 import asyncio
 
-from .credentials import api_key
-from .oauth import generate_oauth_token
 from .constants import Endpoints, QUERIES_PER_PAGE
-
-# TODO: attempt to intialize this from a cache; move to a class object
-oauth_token = generate_oauth_token()
+from .config import read_oauth_token, read_api_secrets
 
 async def query_all_paginated(page_handler, **kwargs):
     """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""
@@ -37,6 +33,9 @@ async def query(**kwargs):
 
 def _create_query_payload(**kwargs):
     """Creates a query payload with the given authorization and key-value pairs."""
+
+    oauth_token = read_oauth_token()
+    api_key, _ = read_api_secrets()
 
     payload = {}
 
@@ -88,3 +87,4 @@ def _flatten(l):
     """Flattens a list `l`."""
 
     return [subitem for item in l for subitem in item]
+

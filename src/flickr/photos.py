@@ -1,12 +1,12 @@
 import asyncio
 
 from .query import query_all_paginated, query
-
-# TODO: move to an auth file
-user_id = '200072260@N02'
+from .config import read_user_id
 
 async def query_all_photos():
     """Queries for all media and returns a list of photo or video objects."""
+
+    user_id = read_user_id()
 
     return await query_all_paginated(
         _query_photo_page,

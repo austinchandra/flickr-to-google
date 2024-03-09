@@ -1,6 +1,8 @@
 import json
 import httpx
 
+from .config import read_oauth_token
+
 # TODO: Nice-looking download progress bars:
 # https://www.python-httpx.org/advanced/clients/
 
@@ -34,10 +36,7 @@ def create_headers(**kwargs):
 def _read_oauth_token():
     """Returns the cached OAuth token."""
 
-    # TODO: configure path
-    with open('./token.json', 'r') as file:
-        token = json.load(file)
-
+    token = read_oauth_token()
     return token['token']
 
 async def _send_request(method, url, headers, **kwargs):
