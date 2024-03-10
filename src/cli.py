@@ -5,6 +5,7 @@ from parse import parser, Methods
 
 from flickr.api import init as init_flickr_api
 from flickr.directory import create_directory
+from flickr.photos import query_photo_data
 
 from google.authenticate import authenticate_user as authenticate_google_user
 from google.albums import create_albums
@@ -25,6 +26,8 @@ async def exec():
         authenticate_google_user()
     elif args.method == Methods.CREATE_DIRECTORY:
         await create_directory()
+    elif args.method == Methods.POPULATE_DIRECTORY:
+        await query_photo_data()
     else:
         await create_albums()
         await upload_photos()

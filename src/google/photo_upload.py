@@ -27,7 +27,7 @@ async def upload_photos():
 
     requests = _get_requests()
 
-    _print_initiation(requests)
+    _print_init(requests)
 
     responses = []
 
@@ -108,7 +108,7 @@ def _reduce_response_counts(responses):
 
     return reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), responses, (0, 0))
 
-def _print_initiation(requests):
+def _print_init(requests):
     """Prints an upload initiation message."""
 
     print_separator()

@@ -24,8 +24,7 @@ async def query_all_paginated(method, page_handler, **kwargs):
         ) for page in range(1, page_limit + 1)
     ]
 
-    # Use synchrony here, as each `page_handler` typically has requests of its own.
-    results = [await page_handler(query) for query in queries]
+    results = await query_chunked([page_handler(query) for query in queries])
 
     return _flatten(results)
 
@@ -36,7 +35,7 @@ async def query(method, **kwargs):
 
     return await loop.run_in_executor(None, lambda: method(**kwargs))
 
-async def query_chunked(queries, chunk_handler):
+async def query_chunked(queries, chunk_handler=None):
     """Executes the queries in chunks to avoid creating excess requests."""
 
     responses = []
@@ -44,7 +43,8 @@ async def query_chunked(queries, chunk_handler):
     # Technically, this should use a semaphore; but, use batches for timestamping.
     for i in range(0, len(queries), REQUESTS_BATCH_SIZE):
         chunk_responses = await asyncio.gather(*queries[i:i + REQUESTS_BATCH_SIZE])
-        chunk_handler(len(chunk_responses))
+        if chunk_handler is not None:
+            chunk_handler(chunk_responses)
         responses += chunk_responses
 
     return responses

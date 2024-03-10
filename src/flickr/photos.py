@@ -1,41 +1,84 @@
+import os
 import asyncio
 
 from .query import query_all_paginated, query, query_chunked
 from .config import read_user_id
-from common.log import print_timestamped
-from .api import get_flickr_instance
+from common.log import print_timestamped, print_separator
+from common.directory import (
+    get_outputs_path,
+    get_directory_path,
+    write_photo_data,
+    read_photo_data,
+)
+from .api import get_flickr_instance, init as init_flickr_api
 
-async def query_all_photos():
-    """Queries for all media and returns a list of photo or video objects."""
+async def query_photo_identifiers():
+    """Queries and returns a list of photo identifiers."""
 
     user_id = read_user_id()
     flickr = get_flickr_instance()
 
+    async def page_handler(query):
+        page_response = await asyncio.create_task(query)
+        photos = page_response['photos']['photo']
+
+        return [photo['id'] for photo in photos]
+
     return await query_all_paginated(
         flickr.people.getPhotos,
-        _query_photo_page,
+        page_handler,
         user_id=user_id,
     )
 
-async def _query_photo_page(page_query):
-    """Queries a photo page and returns a list of photos for that page."""
+async def query_photo_data():
+    """Queries all remaining photo fields and updates the directory."""
 
-    page_response = await asyncio.create_task(page_query)
-    photos = page_response['photos']['photo']
+    init_flickr_api()
 
-    queries = [_query_photo_data(photo['id']) for photo in photos]
+    requests = _get_requests()
+    _print_init(requests)
+    responses = await query_chunked(requests, _print_download_proportion)
+    _print_summary(responses)
 
-    return await query_chunked(queries, _print_chunk_summary)
+    return responses
 
-async def _query_photo_data(photo_id):
-    """Performs a set of queries for the given photo object and returns a dictionary data object."""
+def _get_requests():
+    """Returns a list of requests with photos to populate."""
 
-    [url, metadata] = await asyncio.gather(
-        _query_photo_source(photo_id),
-        _query_photo_metadata(photo_id),
-    )
+    requests = []
 
-    return _combine_photo_fields(url, metadata)
+    _, directories, _ = next(os.walk(get_outputs_path()))
+    for directory in directories:
+
+        _, _, filenames = next(os.walk(get_directory_path(directory)))
+        for filename in filenames:
+            if filename == 'metadata.json':
+                continue
+
+            photo = read_photo_data(directory, filename)
+
+            if len(photo.keys()) > 1:
+                continue
+
+            requests.append(_query_photo_data(directory, photo['id']))
+
+    return requests
+
+async def _query_photo_data(directory, photo_id):
+    """Queries a photo's data and updates its data entry."""
+
+    try:
+        [url, metadata] = await asyncio.gather(
+            _query_photo_source(photo_id),
+            _query_photo_metadata(photo_id),
+        )
+
+        photo = _combine_photo_fields(url, metadata)
+        write_photo_data(directory, photo)
+
+        return photo
+    except Exception:
+        return None
 
 async def _query_photo_source(photo_id):
     """Queries for a photo's source and returns the URL of the original file."""
@@ -103,9 +146,25 @@ def _combine_photo_fields(url, metadata):
 
     return data
 
-def _print_chunk_summary(count):
-    """Prints a summary for each chunk of downloading."""
+def _print_init(requests):
+    """Prints an initialization message with a timestamp."""
 
     print_timestamped(
-        'Downloaded photo data for {} images.'.format(count)
+        'Beginning to download metadata for {} photos.'.format(len(requests))
     )
+
+def _print_download_proportion(responses):
+    """Prints a download proportion for `responses`."""
+
+    num_succeeded = len([r for r in responses if r is not None])
+    num_attempted = len(responses)
+
+    print_timestamped(
+        f'Downloaded photo data for {num_succeeded} of {num_attempted} images.'
+    )
+
+def _print_summary(responses):
+    """Prints a summary on download completion."""
+
+    print_separator()
+    _print_download_proportion(responses)
