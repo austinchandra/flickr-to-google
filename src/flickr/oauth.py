@@ -12,7 +12,8 @@ def authenticate_user():
     client = OAuth1Session(
         api_key,
         api_secret,
-        redirect_uri='oob'
+        # redirect_uri='oob'
+        redirect_uri='http://localhost:'
     )
 
     request_token_endpoint = _create_oauth_request_url('request_token')
@@ -20,10 +21,15 @@ def authenticate_user():
 
     authorization_endpoint = _create_oauth_request_url('authorize')
     authorization_url = client.create_authorization_url(authorization_endpoint)
-    verification_key = _verify_oauth_request(authorization_url)
 
-    token = _create_verified_token(client.token, verification_key)
+    verification_url = _verify_oauth_request(authorization_url)
+    client.parse_authorization_response(verification_url)
+
+    access_token_endpoint = _create_oauth_request_url('access_token')
+    token = client.fetch_access_token(access_token_endpoint)
+
     write_oauth_token(token)
+    print(token)
 
 def _verify_oauth_request(authorization_url):
     """Prompts the user to perform a Flickr authorization and receives the verification key."""

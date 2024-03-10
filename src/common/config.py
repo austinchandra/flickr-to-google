@@ -10,7 +10,7 @@ CONFIG_FILENAME = 'config.json'
 
 @dataclass
 class Config:
-    user_id: str # 200072260@N02
+    user_id: str # 200072260@N02, 32872974@N00
     google_secret_path: str
     flickr_secret_path: str
 

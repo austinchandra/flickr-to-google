@@ -18,9 +18,11 @@ directory_path = 'outputs'
 async def upload_bytes_batch(batch):
     """Uploads photo bytes for a list of photos `batch`."""
 
-    return await asyncio.gather(
+    photos = await asyncio.gather(
         *[upload_bytes(photo) for photo in batch]
     )
+
+    return [photo for photo in photos if photo is not None]
 
 async def upload_bytes(photo):
     """Uploads the bytes for `photo` and returns an updated entry on success."""
