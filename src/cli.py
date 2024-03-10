@@ -12,7 +12,8 @@ from google.photo_upload import upload_photos
 
 from common.config import Config, write_config
 
-# TODO: May need to enable directory to handle multiple queries, e.g. by splitting up pages.
+# TODO: Test directory on the production values, to ensure that it works without issues.
+# TODO: add installation instructions (e.g. Python 3.11+)
 
 async def exec():
     args = parser.parse_args()

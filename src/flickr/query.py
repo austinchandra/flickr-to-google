@@ -2,7 +2,7 @@ import httpx
 import json
 import asyncio
 
-from .constants import Endpoints, QUERIES_PER_PAGE
+from .constants import Endpoints, QUERIES_PER_PAGE, REQUESTS_BATCH_SIZE
 from .config import read_oauth_token, read_api_secrets
 
 async def query_all_paginated(page_handler, **kwargs):
@@ -16,9 +16,8 @@ async def query_all_paginated(page_handler, **kwargs):
         query(page=page, per_page=QUERIES_PER_PAGE, **kwargs) for page in range(1, page_limit + 1)
     ]
 
-    results = await asyncio.gather(
-        *[page_handler(query) for query in queries]
-    )
+    # Use synchrony here, as each `page_handler` typically has requests of its own.
+    results = [await page_handler(query) for query in queries]
 
     return _flatten(results)
 
@@ -28,8 +27,21 @@ async def query(**kwargs):
     payload = _create_query_payload(**kwargs)
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(Endpoints.REST, params=payload)
+        response = await client.get(Endpoints.REST, params=payload, timeout=None)
         return _unwrap_response_json(response.text)
+
+async def query_chunked(queries, chunk_handler):
+    """Executes the queries in chunks to avoid creating excess requests."""
+
+    responses = []
+
+    # Technically, this should use a semaphore; but, use batches for timestamping.
+    for i in range(0, len(queries), REQUESTS_BATCH_SIZE):
+        chunk_responses = await asyncio.gather(*queries[i:i + REQUESTS_BATCH_SIZE])
+        chunk_handler(len(chunk_responses))
+        responses += chunk_responses
+
+    return responses
 
 def _create_query_payload(**kwargs):
     """Creates a query payload with the given authorization and key-value pairs."""

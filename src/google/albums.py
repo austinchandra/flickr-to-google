@@ -30,24 +30,6 @@ async def create_albums():
 
     return responses
 
-def _print_initiation(requests):
-    """Prints a message for the beginning of the request."""
-
-    print_separator()
-    print_timestamped(
-        'Beginning to create {} albums.'.format(len(requests))
-    )
-
-def _print_summary(responses, requests):
-    """Prints a summary of the proportion of albums created."""
-
-    num_created = len([r for r in responses if r is not None])
-    num_attempted = len(requests)
-
-    print_timestamped(
-        f'Created {num_created} out of {num_attempted} remaining album(s).'
-    )
-
 def _get_requests():
     """Returns a list of unfulfilled album creation requests."""
 
@@ -105,3 +87,27 @@ def _parse_album_id(response):
     """Returns the album ID or `None` on failure."""
 
     return response.json().get('id', None)
+
+def _print_initiation(requests):
+    """Prints a message for the beginning of the request."""
+
+    print_separator()
+    print_timestamped(
+        'Beginning to create {} album(s).'.format(len(requests))
+    )
+
+def _print_single_result():
+
+    print_timestamped(
+        'Beginning to create {} album(s).'.format(len(requests))
+    )
+
+def _print_summary(responses, requests):
+    """Prints a summary of the proportion of albums created."""
+
+    num_created = len([r for r in responses if r is not None])
+    num_attempted = len(requests)
+
+    print_timestamped(
+        f'Created {num_created} out of {num_attempted} remaining album(s).'
+    )

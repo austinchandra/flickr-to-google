@@ -30,20 +30,18 @@ async def upload_photos():
     _print_initiation(requests)
 
     responses = []
-    # Handle requests in chunks due to the size:
-    start, bound = 0, len(requests)
 
-    while start < bound:
+    # Handle requests in chunks due to the size of requests:
+
+    for i in range(0, len(requests), REQUESTS_BATCH_SIZE):
         authenticate_user()
 
-        end = min(start + REQUESTS_BATCH_SIZE, bound)
         # Batch item creations must be performed sequentially. Note that it is possible to run bytes upload
         # jobs while these are pending, but skip this optimization for simplicity.
-        chunk_responses = [await request for request, _ in requests[start:end]]
-        start += REQUESTS_BATCH_SIZE
-
-        _print_chunk_summary(chunk_responses)
-        responses += chunk_responses
+        for request, _ in requests[i:i + REQUESTS_BATCH_SIZE]:
+            batch_response = await request
+            _print_batch_summary(batch_response)
+            responses.append(batch_response)
 
     _print_summary(responses)
 
@@ -115,13 +113,13 @@ def _print_initiation(requests):
 
     num_photos = _parse_num_photos(requests)
     print_timestamped(
-        'Beginning upload for {} remaining photos.'.format(num_photos)
+        'Beginning upload for {} remaining photo(s).'.format(num_photos)
     )
 
-def _print_chunk_summary(responses):
+def _print_batch_summary(response):
     """Prints an intermediate upload summary."""
 
-    succeeded_count, attempted_count = _reduce_response_counts(responses)
+    succeeded_count, attempted_count = response
 
     print_timestamped(
         f'Uploaded {succeeded_count} out of {attempted_count} photo(s).'

@@ -1,7 +1,8 @@
 import asyncio
 
-from .query import query_all_paginated, query
+from .query import query_all_paginated, query, query_chunked
 from .config import read_user_id
+from common.log import print_timestamped
 
 async def query_photosets():
     """Queries for all photosets and returns a list of photoset objects."""
@@ -22,7 +23,7 @@ async def _query_photoset_page(page_query):
 
     queries = [_query_photoset_data(photoset) for photoset in photosets]
 
-    return await asyncio.gather(*queries)
+    return await query_chunked(queries, _print_chunk_summary)
 
 async def _query_photoset_data(photoset):
     """Queries for a particular photoset's information and returns a dictionary data object."""
@@ -71,3 +72,9 @@ def _combine_photoset_fields(metadata, photo_ids):
 
     return data
 
+def _print_chunk_summary(count):
+    """Prints a summary for each chunk of downloading."""
+
+    print_timestamped(
+        'Downloaded photoset data for {} albums.'.format(count)
+    )

@@ -1,7 +1,8 @@
 import asyncio
 
-from .query import query_all_paginated, query
+from .query import query_all_paginated, query, query_chunked
 from .config import read_user_id
+from common.log import print_timestamped
 
 async def query_all_photos():
     """Queries for all media and returns a list of photo or video objects."""
@@ -17,12 +18,12 @@ async def query_all_photos():
 async def _query_photo_page(page_query):
     """Queries a photo page and returns a list of photos for that page."""
 
-    response = await asyncio.create_task(page_query)
-    photos = response['photos']['photo']
+    page_response = await asyncio.create_task(page_query)
+    photos = page_response['photos']['photo']
 
     queries = [_query_photo_data(photo['id']) for photo in photos]
 
-    return await asyncio.gather(*queries)
+    return await query_chunked(queries, _print_chunk_summary)
 
 async def _query_photo_data(photo_id):
     """Performs a set of queries for the given photo object and returns a dictionary data object."""
@@ -88,3 +89,10 @@ def _combine_photo_fields(url, metadata):
     data['url'] = url
 
     return data
+
+def _print_chunk_summary(count):
+    """Prints a summary for each chunk of downloading."""
+
+    print_timestamped(
+        'Downloaded photo data for {} images.'.format(count)
+    )

@@ -5,3 +5,4 @@ class Endpoints(StrEnum):
     REST = 'https://www.flickr.com/services/rest/'
 
 QUERIES_PER_PAGE = 500
+REQUESTS_BATCH_SIZE = 20
