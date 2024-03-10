@@ -1,13 +1,19 @@
 import flickrapi
 
-from .config import read_api_secrets
+from .config import read_api_keys
 
-def get_flickr():
-    # api_key, api_secret = read_api_secrets()
-    api_key = u'55256e22b7cd1f302d2d2991e17ed570'
-    api_secret = u'570ec2b4b241dbdd'
+flickr = None
 
+def init():
+    """Initializes an authenticated Flickr instance."""
+
+    api_key, api_secret = read_api_keys()
+
+    global flickr
     flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
     flickr.authenticate_via_browser(perms='read')
+
+def get_flickr_instance():
+    """Returns the Flickr instance."""
 
     return flickr

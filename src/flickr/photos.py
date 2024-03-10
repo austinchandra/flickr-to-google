@@ -3,13 +3,13 @@ import asyncio
 from .query import query_all_paginated, query, query_chunked
 from .config import read_user_id
 from common.log import print_timestamped
-from .api import get_flickr
+from .api import get_flickr_instance
 
 async def query_all_photos():
     """Queries for all media and returns a list of photo or video objects."""
 
-    flickr = get_flickr()
     user_id = read_user_id()
+    flickr = get_flickr_instance()
 
     return await query_all_paginated(
         flickr.people.getPhotos,
@@ -45,7 +45,7 @@ async def _query_photo_source(photo_id):
     # URLs cannot be constructed using the original IDs without a loss in quality:
     # - https://www.flickr.com/services/api/misc.urls.html
 
-    flickr = get_flickr()
+    flickr = get_flickr_instance()
 
     response = await query(
         flickr.photos.getSizes,
@@ -77,7 +77,7 @@ async def _query_photo_source(photo_id):
 async def _query_photo_metadata(photo_id):
     """Queries for a photo's metadata and returns the relevant fields."""
 
-    flickr = get_flickr()
+    flickr = get_flickr_instance()
 
     response = await query(
         flickr.photos.getInfo,

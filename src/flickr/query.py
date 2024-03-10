@@ -3,7 +3,6 @@ import json
 import asyncio
 
 from .constants import Endpoints, QUERIES_PER_PAGE, REQUESTS_BATCH_SIZE
-from .api import get_flickr
 
 async def query_all_paginated(method, page_handler, **kwargs):
     """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""

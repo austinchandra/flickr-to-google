@@ -3,7 +3,7 @@ import asyncio
 
 from parse import parser, Methods
 
-from flickr.oauth import authenticate_user as authenticate_flickr_user
+from flickr.api import init as init_flickr_api
 from flickr.directory import create_directory
 
 from google.authenticate import authenticate_user as authenticate_google_user
@@ -21,7 +21,7 @@ async def exec():
     if args.method == Methods.SET_CONFIG:
         create_config(args)
     elif args.method == Methods.AUTHENTICATE:
-        authenticate_flickr_user()
+        init_flickr_api()
         authenticate_google_user()
     elif args.method == Methods.CREATE_DIRECTORY:
         await create_directory()

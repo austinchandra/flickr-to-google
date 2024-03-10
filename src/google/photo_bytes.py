@@ -7,13 +7,7 @@ from .rest import post, create_headers
 from .constants import Endpoints, PhotoEntryKeys
 from common.files import write_json_file, read_json_file
 
-# TODO: Can test this at small-scale with a few hundred photos/videos, etc.: test metadata,
-# dates, albums/photostream; pagination and batches.
-
 # TODO: Run a linter
-
-# TODO: Move with the others
-directory_path = 'outputs'
 
 async def upload_bytes_batch(batch):
     """Uploads photo bytes for a list of photos `batch`."""

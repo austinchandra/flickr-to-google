@@ -6,9 +6,12 @@ from .photos import query_all_photos
 from .photosets import query_photosets
 from common.directory import write_album_metadata, write_photo_data
 from common.log import print_timestamped, print_separator
+from .api import init as init_flickr_api
 
 async def create_directory():
     """Creates a directory of all photosets and photos in `outputs`."""
+
+    init_flickr_api()
 
     _print_initiation()
 

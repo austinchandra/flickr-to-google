@@ -3,13 +3,13 @@ import asyncio
 from .query import query_all_paginated, query, query_chunked
 from .config import read_user_id
 from common.log import print_timestamped
-from .api import get_flickr
+from .api import get_flickr_instance
 
 async def query_photosets():
     """Queries for all photosets and returns a list of photoset objects."""
 
     user_id = read_user_id()
-    flickr = get_flickr()
+    flickr = get_flickr_instance()
 
     return await query_all_paginated(
         flickr.photosets.getList,
@@ -50,7 +50,7 @@ async def _query_photoset_photos(photoset_id):
     """Queries for the photos in the photoset and returns a list of the photo IDs."""
 
     user_id = read_user_id()
-    flickr = get_flickr()
+    flickr = get_flickr_instance()
 
     return await query_all_paginated(
         flickr.photosets.getPhotos,

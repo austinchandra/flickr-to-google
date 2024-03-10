@@ -46,49 +46,51 @@ async def upload_photos():
     _print_summary(responses)
 
 def _get_requests():
-    """Returns a list of requests for photos to upload."""
+    """Returns a list of batch requests for all remaining photos."""
 
     requests = []
 
-    outputs_path = get_outputs_path()
-    _, directories, _ = next(os.walk(outputs_path))
+    _, directories, _ = next(os.walk(get_outputs_path()))
 
     for directory in directories:
-        _, _, filenames = next(os.walk(get_directory_path(directory)))
+        google_album_id = _read_google_album_id(directory)
 
-        album_id = _read_google_album_id(directory)
+        assert google_album_id is not None or directory == 'photostream'
 
-        if album_id is None and directory != 'photostream':
-            continue
+        photos = _get_pending_photos(directory)
 
-        batches = []
-        next_batch = []
+        for i in range(0, len(photos), CONTENT_BATCH_LIMIT):
+            batch = photos[i: i + CONTENT_BATCH_LIMIT]
+            request = _upload_photo_batch(
+                directory,
+                google_album_id,
+                batch,
+            )
 
-        for filename in filenames:
-            if filename == 'metadata.json':
-                continue
-
-            photo = read_photo_data(directory, filename)
-
-            if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo:
-                continue
-
-            if len(next_batch) >= CONTENT_BATCH_LIMIT:
-                batches.append(next_batch)
-                next_batch = []
-
-            next_batch.append(photo)
-
-        if len(next_batch) > 0:
-            batches.append(next_batch)
-
-        batch_requests = [
-            (_upload_photo_batch(directory, album_id, batch), len(batch)) for batch in batches
-        ]
-
-        requests += batch_requests
+            # Add the batch size for logging.
+            requests.append((request, len(batch)))
 
     return requests
+
+def _get_pending_photos(directory):
+    """Returns a list of photos to be uploaded within `directory`."""
+
+    photos = []
+
+    _, _, filenames = next(os.walk(get_directory_path(directory)))
+
+    for filename in filenames:
+        if filename == 'metadata.json':
+            continue
+
+        photo = read_photo_data(directory, filename)
+
+        if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo:
+            continue
+
+        photos.append(photo)
+
+    return photos
 
 async def _upload_photo_batch(directory, album_id, batch):
     """Uploads photo bytes and bodies for `batch` then updates the corresponding data entries."""
