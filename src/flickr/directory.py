@@ -22,7 +22,7 @@ async def create_directory():
     _write_photoset_directory_files(photosets)
     _write_photo_directory_files(photo_identifiers, photosets)
 
-    _print_summary()
+    _print_summary(photosets)
 
 def _write_photoset_directory_files(photosets):
     """Writes directory files for `photosets`."""
@@ -71,7 +71,9 @@ def _print_init():
 
     print_timestamped('Beginning to create the directory.')
 
-def _print_summary():
+def _print_summary(photosets):
     """Prints a message on completion."""
 
-    print_timestamped('Created the directory.')
+    print_timestamped(
+        'Initialized a directory for {} albums.'.format(len(photosets))
+    )
