@@ -75,5 +75,5 @@ def _print_summary(photosets):
     """Prints a message on completion."""
 
     print_timestamped(
-        'Initialized a directory for {} albums.'.format(len(photosets))
+        'Created the directory with {} albums.'.format(len(photosets))
     )

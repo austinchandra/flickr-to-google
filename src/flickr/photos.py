@@ -77,7 +77,8 @@ async def _query_photo_data(directory, photo_id):
         write_photo_data(directory, photo)
 
         return photo
-    except Exception:
+    except Exception as err:
+        print(err)
         return None
 
 async def _query_photo_source(photo_id):

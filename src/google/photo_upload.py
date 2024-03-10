@@ -88,6 +88,10 @@ def _get_pending_photos(directory):
         if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo:
             continue
 
+        # Ignore photos that were not properly fetched:
+        if len(photos.keys()) <= 1:
+            continue
+
         photos.append(photo)
 
     return photos
