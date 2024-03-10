@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .files import read_json_file, write_json_file
 
-DIRECTORY_BASE_PATH = 'flickr-to-google'
+DIRECTORY_BASE_PATH = '.flickr-to-google'
 CONFIG_FILENAME = 'config.json'
 
 @dataclass
