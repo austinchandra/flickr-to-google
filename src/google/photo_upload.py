@@ -145,6 +145,9 @@ def _parse_num_photos(requests):
 def _read_google_album_id(directory):
     """Returns the Google Photos album ID for the album at `album_path`."""
 
+    if directory == 'photostream':
+        return None
+
     metadata = read_album_metadata(directory)
     return metadata.get(PhotoEntryKeys.GOOGLE_ALBUM_ID, None)
 

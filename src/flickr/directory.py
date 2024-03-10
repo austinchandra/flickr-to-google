@@ -7,13 +7,6 @@ from .photosets import query_photosets
 from common.directory import write_album_metadata, write_photo_data
 from common.log import print_timestamped, print_separator
 
-# TODO: make this configurable. Clean up modules: use a single base module that can run separate
-# commands, importing these from the child directories. Can set configurations in the filesystem, in
-# ~/.<config file>; can export constants from the base module. At the same time, should make certain
-# function definitions private (if they are not to be called). By convention, this uses the `__`
-# prefix as a convention.
-output_path = 'outputs'
-
 async def create_directory():
     """Creates a directory of all photosets and photos in `outputs`."""
 

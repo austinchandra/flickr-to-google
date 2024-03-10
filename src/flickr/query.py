@@ -8,7 +8,7 @@ from .config import read_oauth_token, read_api_secrets
 async def query_all_paginated(page_handler, **kwargs):
     """Queries all pages and applies `page_handler` to each one, returning a flattened list of the responses."""
 
-    page_limit = await _query_page_limit(**kwargs)
+    page_limit = await _query_page_limit(per_page=QUERIES_PER_PAGE, **kwargs)
 
     # Repeat the original page query here, for simplicity.
 

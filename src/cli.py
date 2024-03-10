@@ -12,6 +12,8 @@ from google.photo_upload import upload_photos
 
 from common.config import Config, write_config
 
+# TODO: May need to enable directory to handle multiple queries, e.g. by splitting up pages.
+
 async def exec():
     args = parser.parse_args()
 

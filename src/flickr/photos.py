@@ -48,10 +48,16 @@ async def _query_photo_source(photo_id):
     )
 
     sizes = response['sizes']['size']
-
     assert len(sizes) > 0
-    original = sizes[-1]
-    assert original['label'] == 'Original'
+
+    video_sizes = [size for size in sizes if size['media'] == 'video']
+
+    if len(video_sizes) > 0:
+        # Select the largest video, by width.
+        original = sorted(video_sizes, key=lambda s: int(s['width']))[-1]
+    else:
+        original = sizes[-1]
+        assert original['label'] == 'Original'
 
     return original['source']
 

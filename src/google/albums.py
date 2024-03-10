@@ -57,6 +57,9 @@ def _get_requests():
     _, directories, _ = next(os.walk(outputs_path))
 
     for directory in directories:
+        if directory == 'photostream':
+            continue
+
         album = read_album_metadata(directory)
 
         if PhotoEntryKeys.GOOGLE_ALBUM_ID in album:

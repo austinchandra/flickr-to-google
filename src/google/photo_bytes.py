@@ -40,7 +40,7 @@ async def upload_bytes(photo):
 def _download_content(photo):
     """Downloads the photo content and returns the raw bytes."""
 
-    return httpx.get(photo['url']).content
+    return httpx.get(photo['url'], follow_redirects=True).content
 
 def _create_headers(photo):
     """Creates HTTP headers for uploading photo bytes."""
