@@ -12,7 +12,7 @@ async def query_all_photos():
     return await query_all_paginated(
         _query_photo_page,
         method='flickr.people.getPhotos',
-        user_id=user_id
+        user_id=user_id,
     )
 
 async def _query_photo_page(page_query):
@@ -49,16 +49,24 @@ async def _query_photo_source(photo_id):
     )
 
     sizes = response['sizes']['size']
+
     assert len(sizes) > 0
 
+    # Filter video sizes for videos:
     video_sizes = [size for size in sizes if size['media'] == 'video']
+    sizes = video_sizes if len(video_sizes) > 0 else sizes
 
-    if len(video_sizes) > 0:
-        # Select the largest video, by width.
-        original = sorted(video_sizes, key=lambda s: int(s['width']))[-1]
-    else:
-        original = sizes[-1]
-        assert original['label'] == 'Original'
+    # Filter sizes with no width/height responses:
+    sizes = [size for size in sizes if size['width'] is not None and size['height'] is not None]
+
+    # Select the value by largest combined resolution.
+    sorted_sizes = sorted(
+        sizes,
+        key=lambda size: int(size['width']) * int(size['height']),
+        reverse=True
+    )
+
+    original = sorted_sizes[0]
 
     return original['source']
 
@@ -78,7 +86,6 @@ async def _query_photo_metadata(photo_id):
     metadata['title'] = photo['title']['_content']
     metadata['description'] = photo['description']['_content']
     metadata['posted'] = photo['dates']['posted']
-    metadata['format'] = photo['originalformat']
 
     return metadata
 

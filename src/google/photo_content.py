@@ -36,7 +36,7 @@ def _create_request_payload(album_id, batch):
 def _create_media_item(photo):
     """Returns a batch media item for `photo`."""
 
-    file_name = '{}/{}'.format(photo['title'], photo['format'])
+    file_name = photo['title']
     description = photo['description']
     upload_token = photo[PhotoEntryKeys.GOOGLE_UPLOAD_TOKEN]
 

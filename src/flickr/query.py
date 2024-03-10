@@ -76,10 +76,6 @@ async def _query_page_limit(**kwargs):
     """Queries the given request and returns the paginated page limit."""
 
     response = await query(**kwargs)
-    return _parse_response_page_limit(response)
-
-def _parse_response_page_limit(response):
-    """Returns the total number of pages in a paginated query."""
 
     # Find the first member that is a dictionary with key `pages`, then return the value:
     key = 'pages'
