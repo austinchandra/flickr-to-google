@@ -25,8 +25,9 @@ async def exec():
         await create_directory()
     elif args.method == Methods.POPULATE_DIRECTORY:
         await query_photo_data()
-    else:
+    elif args.method == Methods.UPLOAD_ALBUMS:
         await create_albums()
+    else:
         await upload_photos()
 
 def create_config(args):

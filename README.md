@@ -10,6 +10,7 @@ Install the project and its dependencies:
 
 ```
 git clone https://github.com/0a1c/flickr-to-google
+cd flickr-to-google
 source venv/bin/activate
 make install
 ```
@@ -69,6 +70,14 @@ Repeat this step until all photo information is downloaded.
 
 ```
 python3 src/cli.py populate-directory
+```
+
+### 5. Upload the albums to Google
+
+Repeat this step until all albums are uploaded.
+
+```
+python3 src/cli.py upload-albums
 ```
 
 ### 5. Upload the photos to Google
