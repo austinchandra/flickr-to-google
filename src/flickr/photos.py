@@ -107,14 +107,22 @@ async def _query_photo_source(photo_id):
     # Filter sizes with no width/height responses:
     sizes = [size for size in sizes if size['width'] is not None and size['height'] is not None]
 
-    # Select the value by largest combined resolution.
-    sorted_sizes = sorted(
-        sizes,
-        key=lambda size: int(size['width']) * int(size['height']),
-        reverse=True
-    )
+    # Find the original size if it exists:
+    original = None
 
-    original = sorted_sizes[0]
+    for size in sizes:
+        if size['label'] == 'Original':
+            original = size
+
+    # Otherwise, select the value by largest resolution.
+    if original is None:
+        sorted_sizes = sorted(
+            sizes,
+            key=lambda size: int(size['width']) * int(size['height']),
+            reverse=True
+        )
+
+        original = sorted_sizes[0]
 
     return original['source']
 
