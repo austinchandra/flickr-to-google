@@ -89,7 +89,7 @@ def _get_pending_photos(directory):
             continue
 
         # Ignore photos that were not properly fetched:
-        if len(photos.keys()) <= 1:
+        if len(photo.keys()) <= 1:
             continue
 
         photos.append(photo)
