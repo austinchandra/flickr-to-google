@@ -7,7 +7,7 @@ class Methods(StrEnum):
     AUTHENTICATE = 'authenticate'
     CREATE_DIRECTORY = 'create-directory'
     POPULATE_DIRECTORY = 'populate-directory'
-    UPLOAD_ALBUMS = 'upload-albums'
+    CREATE_ALBUMS = 'create-albums'
     UPLOAD_PHOTOS = 'upload-photos'
 
 parser = argparse.ArgumentParser(

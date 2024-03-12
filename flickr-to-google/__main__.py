@@ -12,8 +12,11 @@ from google.albums import create_albums
 from google.photo_upload import upload_photos
 
 from common.config import Config, write_config
+from common.log import print_separator, print_timestamped
 
-async def exec():
+OPERATION_RETRY_LIMIT = 10
+
+async def cli():
     args = parser.parse_args()
 
     if args.method == Methods.SET_CONFIG:
@@ -24,11 +27,11 @@ async def exec():
     elif args.method == Methods.CREATE_DIRECTORY:
         await create_directory()
     elif args.method == Methods.POPULATE_DIRECTORY:
-        await query_photo_data()
-    elif args.method == Methods.UPLOAD_ALBUMS:
-        await create_albums()
+        await run_with_retry(query_photo_data)
+    elif args.method == Methods.CREATE_ALBUMS:
+        await run_with_retry(create_albums)
     else:
-        await upload_photos()
+        await run_with_retry(upload_photos)
 
 def create_config(args):
     config = Config(
@@ -39,6 +42,24 @@ def create_config(args):
 
     write_config(config)
 
+async def run_with_retry(method, count=0):
+    """Runs `method` with proportionate success until completion up to a limit."""
+
+    num_succeeded, num_attempted = await method()
+
+    if num_succeeded == num_attempted:
+        return
+    elif count == OPERATION_RETRY_LIMIT - 1:
+        print_separator()
+        print_timestamped(
+            f'Operation failed to complete after {OPERATION_RETRY_LIMIT} attempts.'
+        )
+
+        return
+    else:
+        await run_with_retry(method, count + 1)
+
+
 if __name__ == '__main__':
-    asyncio.run(exec())
+    asyncio.run(cli())
 

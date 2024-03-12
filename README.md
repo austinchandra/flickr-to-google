@@ -46,7 +46,7 @@ Otherwise, the NSID can be located in the sidebar of an API Explore Page such as
 [flickr.people.getInfo](https://www.flickr.com/services/api/explore/flickr.people.getInfo).
 
 ```
-python3 src/cli.py set-config \
+python3 flickr-to-google set-config \
 -u <flickr_user_id> \
 -f <path/to/flickr_credentials.json> \
 -g <path/to/google_credentials.json>
@@ -55,36 +55,30 @@ python3 src/cli.py set-config \
 ### 2. Authenticate accounts for both platforms
 
 ```
-python3 src/cli.py authenticate
+python3 flickr-to-google authenticate
 ```
 
 ### 3. Initialize the directory
 
 ```
-python3 src/cli.py create-directory
+python3 flickr-to-google create-directory
 ```
 
 ### 4. Populate the directory
 
-Repeat this step until all photo information is downloaded.
-
 ```
-python3 src/cli.py populate-directory
+python3 flickr-to-google populate-directory
 ```
 
-### 5. Upload the albums to Google
-
-Repeat this step until all albums are uploaded.
+### 5. Create the albums on Google
 
 ```
-python3 src/cli.py upload-albums
+python3 flickr-to-google create-albums
 ```
 
 ### 5. Upload the photos to Google
 
-Repeat this step until all photos are uploaded.
-
 ```
-python3 src/cli.py upload-photos
+python3 flickr-to-google upload-photos
 ```
 

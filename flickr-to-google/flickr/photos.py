@@ -40,7 +40,7 @@ async def query_photo_data():
     responses = await query_chunked(requests, _print_download_proportion)
     _print_summary(responses)
 
-    return responses
+    return _get_proportion_downloaded(responses)
 
 def _get_requests():
     """Returns a list of requests with photos to populate."""
@@ -162,11 +162,18 @@ def _print_init(requests):
         'Beginning to download metadata for {} photos.'.format(len(requests))
     )
 
-def _print_download_proportion(responses):
-    """Prints a download proportion for `responses`."""
+def _get_proportion_downloaded(responses):
+    """Returns a `(num_succeeded, num_attempted)` tuple of the proportion of photos downloaded."""
 
     num_succeeded = len([r for r in responses if r is not None])
     num_attempted = len(responses)
+
+    return (num_succeeded, num_attempted)
+
+def _print_download_proportion(responses):
+    """Prints a download proportion for `responses`."""
+
+    num_succeeded, num_attempted = _get_proportion_downloaded(responses)
 
     print_timestamped(
         f'Downloaded photo data for {num_succeeded} of {num_attempted} images.'

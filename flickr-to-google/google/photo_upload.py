@@ -45,6 +45,8 @@ async def upload_photos():
 
     _print_summary(responses)
 
+    return _reduce_response_counts(responses)
+
 def _get_requests():
     """Returns a list of batch requests for all remaining photos."""
 

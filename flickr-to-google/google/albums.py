@@ -15,7 +15,7 @@ from common.log import print_timestamped, print_separator
 
 async def create_albums():
     """Attempts to create all remaining albums and updates the directory files accordingly, including
-    the Photos album ID on success, then returns a list of created album IDs."""
+    the Photos album ID on success, then returns the proportion created as a tuple."""
 
     authenticate_user()
 
@@ -28,7 +28,7 @@ async def create_albums():
 
     _print_summary(responses, requests)
 
-    return responses
+    return _get_proportion_created(responses, requests)
 
 def _get_requests():
     """Returns a list of unfulfilled album creation requests."""
@@ -88,6 +88,14 @@ def _parse_album_id(response):
 
     return response.json().get('id', None)
 
+def _get_proportion_created(responses, requests):
+    """Returns a `(num_created, num_attempted)` tuple given `responses` and `requests`."""
+
+    num_created = len([r for r in responses if r is not None])
+    num_attempted = len(requests)
+
+    return (num_created, num_attempted)
+
 def _print_initiation(requests):
     """Prints a message for the beginning of the request."""
 
@@ -105,8 +113,7 @@ def _print_single_result():
 def _print_summary(responses, requests):
     """Prints a summary of the proportion of albums created."""
 
-    num_created = len([r for r in responses if r is not None])
-    num_attempted = len(requests)
+    num_created, num_attempted = _get_proportion_created(responses, requests)
 
     print_timestamped(
         f'Created {num_created} out of {num_attempted} remaining album(s).'
