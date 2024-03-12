@@ -40,8 +40,8 @@ async def upload_photos():
         # jobs while these are pending, but skip this optimization for simplicity.
         for request, _ in requests[i:i + REQUESTS_BATCH_SIZE]:
             batch_response = await request
-            _print_batch_summary(batch_response)
             responses.append(batch_response)
+            _print_batch_summary(batch_response, responses)
 
     _print_summary(responses)
 
@@ -124,14 +124,18 @@ def _print_init(requests):
         'Beginning upload for {} remaining photo(s).'.format(num_photos)
     )
 
-def _print_batch_summary(response):
+def _print_batch_summary(batch_response, responses):
     """Prints an intermediate upload summary."""
 
-    succeeded_count, attempted_count = response
+    batch_succeeded_count, batch_attempted_count = batch_response
+    total_succeeded_count, _ = _reduce_response_counts(responses)
 
-    print_timestamped(
-        f'Uploaded {succeeded_count} out of {attempted_count} photo(s).'
+    content = 'Uploaded {} out of {} photo(s) ({} total).'.format(
+        batch_succeeded_count,
+        batch_attempted_count,
+        total_succeeded_count,
     )
+    print_timestamped(content)
 
 def _print_summary(responses):
     """Prints a final upload summary."""
