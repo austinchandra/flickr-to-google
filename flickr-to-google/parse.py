@@ -7,6 +7,7 @@ class Methods(StrEnum):
     AUTHENTICATE = 'authenticate'
     CREATE_DIRECTORY = 'create-directory'
     POPULATE_DIRECTORY = 'populate-directory'
+    DOWNLOAD_PHOTOS = 'download-photos'
     CREATE_ALBUMS = 'create-albums'
     UPLOAD_PHOTOS = 'upload-photos'
 
@@ -17,7 +18,11 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('method', choices=[method for method in Methods])
 
-is_set_config = Methods.SET_CONFIG in sys.argv
-parser.add_argument('-u', '--flickr-user-id', required=is_set_config)
-parser.add_argument('-g', '--google-secret', required=is_set_config)
-parser.add_argument('-f', '--flickr-secret', required=is_set_config)
+is_method_set_config = Methods.SET_CONFIG in sys.argv
+parser.add_argument('-u', '--flickr-user-id', required=is_method_set_config)
+parser.add_argument('-g', '--google-secret', required=is_method_set_config)
+parser.add_argument('-f', '--flickr-secret', required=is_method_set_config)
+
+is_method_download_photos = Methods.DOWNLOAD_PHOTOS in sys.argv
+parser.add_argument('-p', '--path', required=is_method_download_photos)
+parser.add_argument('-a', '--download-all', required=is_method_download_photos)

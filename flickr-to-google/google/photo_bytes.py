@@ -6,6 +6,7 @@ from pathlib import Path
 from .rest import post, create_headers
 from .constants import Endpoints, PhotoEntryKeys
 from common.files import write_json_file, read_json_file
+from common.network import download_photo_bytes
 
 # TODO: Run a linter
 
@@ -22,7 +23,7 @@ async def upload_bytes(photo):
     """Uploads the bytes for `photo` and returns an updated entry on success."""
 
     headers = _create_headers(photo)
-    content = _download_content(photo)
+    _, content = download_photo_bytes(photo)
 
     response = await post(Endpoints.BYTE_UPLOADS, headers, data=content)
 
@@ -32,11 +33,6 @@ async def upload_bytes(photo):
         photo[PhotoEntryKeys.GOOGLE_UPLOAD_TOKEN] = upload_token
 
         return photo
-
-def _download_content(photo):
-    """Downloads the photo content and returns the raw bytes."""
-
-    return httpx.get(photo['url'], follow_redirects=True).content
 
 def _create_headers(photo):
     """Creates HTTP headers for uploading photo bytes."""

@@ -6,6 +6,7 @@ from parse import parser, Methods
 from flickr.api import init as init_flickr_api
 from flickr.directory import create_directory
 from flickr.photos import query_photo_data
+from flickr.download import download_photos
 
 from google.authenticate import authenticate_user as authenticate_google_user
 from google.albums import create_albums
@@ -19,16 +20,22 @@ OPERATION_RETRY_LIMIT = 10
 async def cli():
     args = parser.parse_args()
 
-    if args.method == Methods.SET_CONFIG:
+    method = args.method
+
+    if method == Methods.SET_CONFIG:
         create_config(args)
-    elif args.method == Methods.AUTHENTICATE:
+    elif method == Methods.AUTHENTICATE:
         init_flickr_api()
         authenticate_google_user()
-    elif args.method == Methods.CREATE_DIRECTORY:
+    elif method == Methods.CREATE_DIRECTORY:
         await create_directory()
-    elif args.method == Methods.POPULATE_DIRECTORY:
+    elif method == Methods.POPULATE_DIRECTORY:
         await run_with_retry(query_photo_data)
-    elif args.method == Methods.CREATE_ALBUMS:
+    elif method == Methods.DOWNLOAD_PHOTOS:
+        path = args.path
+        is_downloading_all = args.download_all
+        await download_photos(path, is_downloading_all)
+    elif method == Methods.CREATE_ALBUMS:
         await run_with_retry(create_albums)
     else:
         await run_with_retry(upload_photos)

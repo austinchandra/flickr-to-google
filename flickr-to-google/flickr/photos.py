@@ -111,7 +111,7 @@ async def _query_photo_source(photo_id):
     original = None
 
     for size in sizes:
-        if size['label'] == 'Original':
+        if size['label'] == 'Original' or size['label'] == 'Video Original':
             original = size
 
     # Otherwise, select the value by largest resolution.
