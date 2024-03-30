@@ -91,7 +91,6 @@ def _parse_album_id(response):
 def _print_init(requests):
     """Prints an upload initiation message."""
 
-    print_separator()
     print_timestamped(
         'Beginning to create {} remaining album(s).'.format(len(requests))
     )

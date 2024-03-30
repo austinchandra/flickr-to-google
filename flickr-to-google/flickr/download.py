@@ -109,7 +109,6 @@ def _update_photo_entry(path, directory, photo):
 def _print_init(requests):
     """Prints a download initiation message."""
 
-    print_separator()
     print_timestamped(
         'Beginning download for {} remaining item(s).'.format(len(requests))
     )

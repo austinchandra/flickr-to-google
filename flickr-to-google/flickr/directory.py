@@ -67,13 +67,14 @@ def _write_photo_directory_file(photo, photoset_id=None):
     write_photo_data(directory, photo)
 
 def _print_init():
-    """Prints a message on initiating `create_directory`."""
+    """Prints a download initiation message."""
 
     print_timestamped('Beginning to create the directory.')
 
 def _print_summary(photosets):
-    """Prints a message on completion."""
+    """Prints a final download summary."""
 
+    print_separator()
     print_timestamped(
         'Created the directory with {} albums.'.format(len(photosets))
     )

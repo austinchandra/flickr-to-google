@@ -117,8 +117,6 @@ def _reduce_response_counts(responses):
 def _print_init(requests):
     """Prints an upload initiation message."""
 
-    print_separator()
-
     num_photos = _parse_num_photos(requests)
     print_timestamped(
         'Beginning upload for {} remaining photo(s).'.format(num_photos)
@@ -128,13 +126,12 @@ def _print_batch_summary(batch_response, responses):
     """Prints an intermediate upload summary."""
 
     batch_succeeded_count, batch_attempted_count = batch_response
-    total_succeeded_count, _ = _reduce_response_counts(responses)
 
-    content = 'Uploaded {} out of {} photo(s) ({} total).'.format(
+    content = 'Uploaded {} out of {} photo(s).'.format(
         batch_succeeded_count,
         batch_attempted_count,
-        total_succeeded_count,
     )
+
     print_timestamped(content)
 
 def _print_summary(responses):
