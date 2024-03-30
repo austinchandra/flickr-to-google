@@ -6,7 +6,7 @@ from parse import parser, Methods
 from flickr.api import init as init_flickr_api
 from flickr.directory import create_directory
 from flickr.photos import query_photo_data
-from flickr.download import download_photos
+from flickr.download import download_photos as flickr_download_photos
 
 from google.authenticate import authenticate_user as authenticate_google_user
 from google.albums import create_albums
@@ -17,7 +17,7 @@ from common.log import print_separator, print_timestamped
 
 OPERATION_RETRY_LIMIT = 10
 
-async def cli():
+async def run_cli():
     args = parser.parse_args()
 
     method = args.method
@@ -25,20 +25,17 @@ async def cli():
     if method == Methods.SET_CONFIG:
         create_config(args)
     elif method == Methods.AUTHENTICATE:
-        init_flickr_api()
-        authenticate_google_user()
+        authenticate()
     elif method == Methods.CREATE_DIRECTORY:
         await create_directory()
     elif method == Methods.POPULATE_DIRECTORY:
-        await run_with_retry(query_photo_data)
+        await repeated(query_photo_data)
     elif method == Methods.DOWNLOAD_PHOTOS:
-        path = args.path
-        is_downloading_all = args.download_all
-        await download_photos(path, is_downloading_all)
+        await download_photos(args)
     elif method == Methods.CREATE_ALBUMS:
-        await run_with_retry(create_albums)
+        await repeated(create_albums)
     else:
-        await run_with_retry(upload_photos)
+        await repeated(upload_photos)
 
 def create_config(args):
     config = Config(
@@ -51,24 +48,30 @@ def create_config(args):
 
     write_config(config)
 
-async def run_with_retry(method, count=0):
-    """Runs `method` with proportionate success until completion up to a limit."""
+def authenticate():
+    init_flickr_api()
+    authenticate_google_user()
 
-    num_succeeded, num_attempted = await method()
+async def download_photos(args):
+    await flickr_download_photos(args.path, args.download_all)
+
+async def repeated(method, *args, count=0):
+    num_succeeded, num_attempted = await method(*args)
 
     if num_succeeded == num_attempted:
         return
     elif count == OPERATION_RETRY_LIMIT - 1:
-        print_separator()
-        print_timestamped(
-            f'Operation failed to complete after {OPERATION_RETRY_LIMIT} attempts.'
-        )
-
+        print_retry_failure()
         return
     else:
-        await run_with_retry(method, count + 1)
+        await repeated(method, *args, count + 1)
 
+def print_retry_failure():
+    print_separator()
+    print_timestamped(
+        f'Did not complete after {OPERATION_RETRY_LIMIT} attempts.'
+    )
 
 if __name__ == '__main__':
-    asyncio.run(cli())
+    asyncio.run(run_cli())
 
