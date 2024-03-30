@@ -1,17 +1,22 @@
 import httpx
 
+from .config import read_config
+
 def download_photo_bytes(photo):
     """Downloads the photo content and returns the content type and raw bytes."""
 
-    response = httpx.get(photo['url'], follow_redirects=True)
+    config = read_config()
 
-    data = response.content
+    cookies = {
+        'cookie_session': config.flickr_cookie_session,
+        'cookie_epass': config.flickr_cookie_epass,
+    }
+
+    response = httpx.get(photo['url'], follow_redirects=True, cookies=cookies)
+
+    url = str(response.url)
     content_type = response.headers['content-type']
+    data = response.content
 
-    # TODO: Should check sizing on videos (cannot get these at full resolution on my account). Would
-    # need to integrate an authentication check, or similar, to replicate the effect on browser
-    # (i.e., given the original link, can download the video when logged in, but only lower
-    # resolution otherwise). I.e., include the login cookie on the request.
-
-    return content_type, data
+    return url, content_type, data
 

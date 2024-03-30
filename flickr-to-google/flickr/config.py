@@ -10,7 +10,7 @@ def read_user_id():
     """Returns the Flickr NSID."""
 
     config = read_config()
-    return config.user_id
+    return config.flickr_user_id
 
 def read_api_keys():
     """Returns the API keys."""

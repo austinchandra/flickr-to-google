@@ -43,8 +43,10 @@ async def cli():
 def create_config(args):
     config = Config(
         args.flickr_user_id,
-        args.google_secret,
-        args.flickr_secret,
+        args.google_keys_path,
+        args.flickr_keys_path,
+        args.flickr_cookie_session,
+        args.flickr_cookie_epass,
     )
 
     write_config(config)

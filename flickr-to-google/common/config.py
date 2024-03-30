@@ -10,9 +10,15 @@ CONFIG_FILENAME = 'config.json'
 
 @dataclass
 class Config:
-    user_id: str # 200072260@N02, 32872974@N00
+    flickr_user_id: str
+
+    # These are necessary to perform API requests.
     google_secret_path: str
     flickr_secret_path: str
+
+    # These are necessary to retrieve full-quality videos on request.
+    flickr_cookie_session: str
+    flickr_cookie_epass: str
 
 def read_config():
     """Returns the cached config."""

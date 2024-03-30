@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 import mimetypes
 
 from common.directory import (
@@ -51,40 +52,47 @@ def _get_requests(root_path, is_downloading_all):
 
     return requests
 
-def _get_download_path(root_path, directory, photo, content_type):
+async def _download_photo(root_path, directory, photo):
+    """Downloads the photo bytes for `photo` to the corresponding filepath."""
+
+    url, content_type, data = download_photo_bytes(photo)
+
+    filename = _get_download_filename(photo, content_type, url)
+    path = _get_download_path(root_path, directory, filename)
+
+    write_buffer(path, data)
+    _update_photo_entry(path, directory, photo)
+
+def _get_download_path(root_path, directory, filename):
     """Returns the download file path for the photo given `root_path` and `directory`."""
 
-    directory = _get_download_directory(directory)
-    filename = _get_download_filename(photo, content_type)
+    folder = _get_download_folder(directory)
 
     return Path(
-        os.path.join(root_path, directory, filename)
+        os.path.join(root_path, folder, filename)
     )
 
-def _get_download_directory(directory):
+def _get_download_folder(directory):
     """Returns the name of the directory on the filesystem."""
 
     if directory == 'photostream':
         return 'Photostream'
 
     album = read_album_metadata(directory)
+
     return album['title']
 
-def _get_download_filename(photo, content_type):
+def _get_download_filename(photo, content_type, url):
+    """Returns the photo filename, creating the extension from `content_type` or `url`."""
 
-    filename = photo['title']
+    name = photo['title']
     extension = mimetypes.guess_extension(content_type)
 
-    return Path(f'{filename}{extension}')
+    if extension is None:
+        path = urlparse(url).path
+        extension = os.path.splitext(path)[1]
 
-async def _download_photo(root_path, directory, photo):
-    """Downloads the photo bytes for `photo` to the corresponding filepath."""
-
-    content_type, data = download_photo_bytes(photo)
-    path = _get_download_path(root_path, directory, photo, content_type)
-
-    write_buffer(path, data)
-    _update_photo_entry(path, directory, photo)
+    return Path(f'{name}{extension}')
 
 def _update_photo_entry(path, directory, photo):
     """Updates the photo entry on a successful download."""
