@@ -129,9 +129,8 @@ python3 flickr-to-google upload-photos
 Instead of (or alongside) streaming the photos directly from Flickr to Google, it is possible to
 download the information to disk.
 
-Use the flag `download-all` to indicate whether photos already downloaded should be re-downloaded
-(e.g. on moving the directory).
+Use the flag `--download-all` to optionally re-download all photos.
 
 ```
-python3 flickr-to-google download-photos -p <path/to/download> --download-all <true or false>
+python3 flickr-to-google download-photos -p <path/to/download>
 ```

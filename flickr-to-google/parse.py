@@ -27,4 +27,4 @@ parser.add_argument('--flickr-cookie-epass', required=is_method_set_config)
 
 is_method_download_photos = Methods.DOWNLOAD_PHOTOS in sys.argv
 parser.add_argument('-p', '--path', required=is_method_download_photos)
-parser.add_argument('--download-all', required=is_method_download_photos)
+parser.add_argument('--download-all', action=argparse.BooleanOptionalAction)
