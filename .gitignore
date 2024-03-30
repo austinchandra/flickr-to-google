@@ -2,11 +2,8 @@
 venv
 __pycache__
 
-# Application
-outputs
+# Mac OS
+.DS_Store
 
 # Secret
-credentials.json
-flickr_credentials.json
-token.json
-.env
+credentials
