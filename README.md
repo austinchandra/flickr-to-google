@@ -64,8 +64,9 @@ where it is located in the sidebar.
 To find your Flickr cookies, go to Flickr's website, then open the list of cookies in your browser's
 developer menu. On Chrome, this can be found under Application -> Cookies -> https://flickr.com.
 
-Copy the values for `cookie_session` and `cookie_epass` for the command. These are required in order
-to download full-quality videos.
+Find the values for `cookie_session` and `cookie_epass` and verify that they do not expire for a
+reasonable time (e.g. at least 2-3 days). These are required in order to download full-quality
+videos from Flickr.
 
 ```
 python3 flickr-to-google set-config \
