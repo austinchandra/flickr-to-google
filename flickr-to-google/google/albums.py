@@ -21,7 +21,7 @@ async def create_albums():
 
     requests = _get_requests()
 
-    _print_initiation(requests)
+    _print_init(requests)
 
     # Run this synchronously, as Google Photos disallows concurrent writes.
     responses = [await request for request in requests]
@@ -88,6 +88,24 @@ def _parse_album_id(response):
 
     return response.json().get('id', None)
 
+def _print_init(requests):
+    """Prints an upload initiation message."""
+
+    print_separator()
+    print_timestamped(
+        'Beginning to create {} remaining album(s).'.format(len(requests))
+    )
+
+def _print_summary(responses, requests):
+    """Prints a final upload summary."""
+
+    num_created, num_attempted = _get_proportion_created(responses, requests)
+
+    print_separator()
+    print_timestamped(
+        f'Created {num_created} out of {num_attempted} remaining album(s).'
+    )
+
 def _get_proportion_created(responses, requests):
     """Returns a `(num_created, num_attempted)` tuple given `responses` and `requests`."""
 
@@ -96,25 +114,3 @@ def _get_proportion_created(responses, requests):
 
     return (num_created, num_attempted)
 
-def _print_initiation(requests):
-    """Prints a message for the beginning of the request."""
-
-    print_separator()
-    print_timestamped(
-        'Beginning to create {} album(s).'.format(len(requests))
-    )
-
-def _print_single_result():
-
-    print_timestamped(
-        'Beginning to create {} album(s).'.format(len(requests))
-    )
-
-def _print_summary(responses, requests):
-    """Prints a summary of the proportion of albums created."""
-
-    num_created, num_attempted = _get_proportion_created(responses, requests)
-
-    print_timestamped(
-        f'Created {num_created} out of {num_attempted} remaining album(s).'
-    )

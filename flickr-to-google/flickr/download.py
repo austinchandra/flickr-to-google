@@ -21,8 +21,14 @@ async def download_photos(path, is_downloading_all=False):
 
     requests = _get_requests(path, is_downloading_all)
 
+    _print_init(requests)
+
     for i in range(0, len(requests), REQUESTS_BATCH_SIZE):
-        await asyncio.gather(*requests[i:i + REQUESTS_BATCH_SIZE])
+        batch = requests[i:i + REQUESTS_BATCH_SIZE]
+        await asyncio.gather(*batch)
+        _print_batch_summary(batch)
+
+    _print_summary(requests)
 
 def _get_requests(root_path, is_downloading_all):
     """Returns a list of requests for all remaining photos."""
@@ -99,3 +105,27 @@ def _update_photo_entry(path, directory, photo):
 
     photo[PhotoEntryKeys.DOWNLOAD_FILE_PATH] = str(path)
     write_photo_data(directory, photo)
+
+def _print_init(requests):
+    """Prints a download initiation message."""
+
+    print_separator()
+    print_timestamped(
+        'Beginning download for {} remaining item(s).'.format(len(requests))
+    )
+
+def _print_batch_summary(batch):
+    """Prints an intermediate download summary."""
+
+    print_separator()
+    print_timestamped(
+        'Downloaded {} item(s).'.format(len(batch))
+    )
+
+def _print_summary(requests):
+    """Prints a final download summary."""
+
+    print_separator()
+    print_timestamped(
+        'Downloaded {} remaining item(s).'.format(len(requests))
+    )
