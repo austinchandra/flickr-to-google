@@ -6,7 +6,7 @@ from pathlib import Path
 from .rest import post, create_headers
 from .constants import Endpoints, PhotoEntryKeys
 from common.files import write_json_file, read_json_file
-from common.network import download_photo_bytes
+from common.request import download_photo_bytes
 
 # TODO: Run a linter
 

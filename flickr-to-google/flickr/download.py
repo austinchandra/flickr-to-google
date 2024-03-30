@@ -13,7 +13,7 @@ from common.directory import (
 )
 from .constants import REQUESTS_BATCH_SIZE, PhotoEntryKeys
 from common.log import print_timestamped, print_separator
-from common.network import download_photo_bytes
+from common.request import download_photo_bytes
 from common.files import write_buffer
 
 async def download_photos(path, is_downloading_all=False):
