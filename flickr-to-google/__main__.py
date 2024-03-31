@@ -75,7 +75,7 @@ async def repeated(method, *args, count=0):
         print_retry_failure()
         return
     else:
-        await repeated(method, *args, count + 1)
+        await repeated(method, *args, count=count + 1)
 
 def print_retry_failure():
     print_separator()
