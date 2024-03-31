@@ -9,6 +9,7 @@ class PhotoEntryKeys(StrEnum):
     GOOGLE_UPLOAD_TOKEN = 'google-upload-token'
     GOOGLE_ALBUM_ID = 'google-album-id'
     GOOGLE_MEDIA_ID = 'google-media-id'
+    DID_UPDATE_EXIF = 'did_update_exif'
 
 REQUESTS_BATCH_SIZE = 10
 CONTENT_BATCH_LIMIT = 50

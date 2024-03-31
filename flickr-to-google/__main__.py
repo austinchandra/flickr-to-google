@@ -53,10 +53,18 @@ def authenticate():
     authenticate_google_user()
 
 async def download_photos(args):
-    await flickr_download_photos(args.path, args.download_all, args.videos_only)
+    await flickr_download_photos(
+        args.path,
+        args.download_all,
+        args.videos_only,
+    )
 
 async def upload_photos(args):
-    await repeated(google_upload_photos, args.videos_only)
+    await repeated(
+        google_upload_photos,
+        args.videos_only,
+        args.missing_exif_only,
+    )
 
 async def repeated(method, *args, count=0):
     num_succeeded, num_attempted = await method(*args)

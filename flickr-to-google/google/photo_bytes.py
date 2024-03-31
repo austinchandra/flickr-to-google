@@ -23,7 +23,7 @@ async def upload_bytes(photo):
     """Uploads the bytes for `photo` and returns an updated entry on success."""
 
     headers = _create_headers(photo)
-    _, _, content = download_photo_bytes(photo)
+    _, _, _, content = download_photo_bytes(photo)
 
     response = await post(Endpoints.BYTE_UPLOADS, headers, data=content)
 

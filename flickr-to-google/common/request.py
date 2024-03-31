@@ -20,20 +20,28 @@ def download_photo_bytes(photo):
 
     url = str(response.url)
     content_type = response.headers['content-type']
-    data = _get_exif_updated_data(response.content, photo)
+    data, did_update_exif = _get_exif_updated_data(response.content, photo)
 
-    return url, content_type, data
+    return url, content_type, did_update_exif, data
 
 def _get_exif_updated_data(data, photo):
     """Inserts the upload date into the EXIF metadata if a date cannot be found."""
 
+    did_update_exif = False
+
     if _is_media_video(photo):
-        return data
+        return data, did_update_exif
 
     image = _convert_bytes_to_image(data)
-    exif = _get_date_updated_exif(image, photo)
 
-    return _convert_image_to_bytes(image, exif)
+    if _does_image_have_date(image):
+        return data, did_update_exif
+
+    exif = _get_updated_exif(image, photo)
+
+    did_update_exif = True
+
+    return _convert_image_to_bytes(image, exif), did_update_exif
 
 def _convert_bytes_to_image(data):
     stream = BytesIO(data)
@@ -51,7 +59,9 @@ def _is_media_video(photo):
     # TODO: Turn this into a util
     return photo['media'] == 'video'
 
-def _exif_has_any_date(exif):
+def _does_image_have_date(image):
+    exif = image.getexif()
+
     flags = [
         ExifTags.Base.DateTime,
         ExifTags.Base.DateTimeOriginal,
@@ -60,11 +70,8 @@ def _exif_has_any_date(exif):
 
     return any([flag in exif for flag in flags])
 
-def _get_date_updated_exif(image, photo):
+def _get_updated_exif(image, photo):
     exif = image.getexif()
-
-    if _exif_has_any_date(exif):
-        return exif
 
     timestamp = int(photo['posted'])
     posted = str(datetime.datetime.fromtimestamp(timestamp))
