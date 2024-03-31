@@ -22,10 +22,10 @@ from common.log import print_timestamped, print_separator
 from .photo_content import upload_content_batch
 from .photo_bytes import upload_bytes_batch
 
-async def upload_photos():
+async def upload_photos(is_videos_only=False):
     """Uploads all photos and updates the entry files, printing output summaries throughout."""
 
-    requests = _get_requests()
+    requests = _get_requests(is_videos_only)
 
     _print_init(requests)
 
@@ -47,7 +47,7 @@ async def upload_photos():
 
     return _reduce_response_counts(responses)
 
-def _get_requests():
+def _get_requests(is_videos_only):
     """Returns a list of batch requests for all remaining photos."""
 
     requests = []
@@ -59,7 +59,7 @@ def _get_requests():
 
         assert google_album_id is not None or directory == 'photostream'
 
-        photos = _get_pending_photos(directory)
+        photos = _get_pending_photos(directory, is_videos_only)
 
         for i in range(0, len(photos), CONTENT_BATCH_LIMIT):
             batch = photos[i: i + CONTENT_BATCH_LIMIT]
@@ -74,7 +74,7 @@ def _get_requests():
 
     return requests
 
-def _get_pending_photos(directory):
+def _get_pending_photos(directory, is_videos_only):
     """Returns a list of photos to be uploaded within `directory`."""
 
     photos = []
@@ -88,6 +88,9 @@ def _get_pending_photos(directory):
         photo = read_photo_data(directory, filename)
 
         if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo:
+            continue
+
+        if is_videos_only and not _is_media_video(photo):
             continue
 
         # Ignore photos that were not properly fetched:
@@ -108,6 +111,11 @@ async def _upload_photo_batch(directory, album_id, batch):
         write_photo_data(directory, photo)
 
     return (len(photos), len(batch))
+
+def _is_media_video(photo):
+    """Returns a boolean indicating whether the media item is a video."""
+
+    return photo['media'] == 'video'
 
 def _reduce_response_counts(responses):
     """Reduces a list of proportion tuples to a single cumulative value."""

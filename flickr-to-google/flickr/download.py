@@ -16,10 +16,10 @@ from common.log import print_timestamped, print_separator
 from common.request import download_photo_bytes
 from common.files import write_buffer
 
-async def download_photos(path, is_downloading_all=False):
+async def download_photos(path, is_downloading_all=False, is_videos_only=False):
     """Downloads all photos to `path` and updates the entry files, printing output summaries throughout."""
 
-    requests = _get_requests(path, is_downloading_all)
+    requests = _get_requests(path, is_downloading_all, is_videos_only)
 
     _print_init(requests)
 
@@ -30,7 +30,7 @@ async def download_photos(path, is_downloading_all=False):
 
     _print_summary(requests)
 
-def _get_requests(root_path, is_downloading_all):
+def _get_requests(root_path, is_downloading_all, is_videos_only):
     """Returns a list of requests for all remaining photos."""
 
     requests = []
@@ -52,6 +52,9 @@ def _get_requests(root_path, is_downloading_all):
                 continue
 
             if not is_downloading_all and PhotoEntryKeys.DOWNLOAD_FILE_PATH in photo:
+                continue
+
+            if is_videos_only and not _is_media_video(photo):
                 continue
 
             requests.append(_download_photo(root_path, directory, photo))
@@ -105,6 +108,11 @@ def _update_photo_entry(path, directory, photo):
 
     photo[PhotoEntryKeys.DOWNLOAD_FILE_PATH] = str(path)
     write_photo_data(directory, photo)
+
+def _is_media_video(photo):
+    """Returns a boolean indicating whether the media item is a video."""
+
+    return photo['media'] == 'video'
 
 def _print_init(requests):
     """Prints a download initiation message."""

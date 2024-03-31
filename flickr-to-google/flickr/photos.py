@@ -144,6 +144,7 @@ async def _query_photo_metadata(photo_id):
     metadata['title'] = photo['title']['_content']
     metadata['description'] = photo['description']['_content']
     metadata['posted'] = photo['dates']['posted']
+    metadata['media'] = photo['media']
 
     return metadata
 

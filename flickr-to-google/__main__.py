@@ -10,7 +10,7 @@ from flickr.download import download_photos as flickr_download_photos
 
 from google.authenticate import authenticate_user as authenticate_google_user
 from google.albums import create_albums
-from google.photo_upload import upload_photos
+from google.photo_upload import upload_photos as google_upload_photos
 
 from common.config import Config, write_config
 from common.log import print_separator, print_timestamped
@@ -35,7 +35,7 @@ async def run_cli():
     elif method == Methods.CREATE_ALBUMS:
         await repeated(create_albums)
     else:
-        await repeated(upload_photos)
+        await upload_photos(args)
 
 def create_config(args):
     config = Config(
@@ -53,7 +53,10 @@ def authenticate():
     authenticate_google_user()
 
 async def download_photos(args):
-    await flickr_download_photos(args.path, args.download_all)
+    await flickr_download_photos(args.path, args.download_all, args.videos_only)
+
+async def upload_photos(args):
+    await repeated(google_upload_photos, args.videos_only)
 
 async def repeated(method, *args, count=0):
     num_succeeded, num_attempted = await method(*args)
