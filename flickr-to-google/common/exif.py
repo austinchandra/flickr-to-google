@@ -6,17 +6,21 @@ from io import BytesIO
 def updated_data_with_exif(data, photo):
     """Inserts the upload date into the EXIF metadata if a date cannot be found."""
 
+    did_update_exif = False
+
     if _is_media_video(photo):
-        return data
+        return data, did_update_exif
 
     image = _bytes_to_image(data)
 
     if _image_has_date(image):
-        return data
+        return data, did_update_exif
 
     exif = _get_exif(image, photo)
 
-    return _image_to_bytes(image, exif)
+    did_update_exif = True
+
+    return _image_to_bytes(image, exif), did_update_exif
 
 def _bytes_to_image(data):
     """Converts bytes to a PIL image object."""

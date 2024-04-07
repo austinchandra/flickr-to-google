@@ -64,13 +64,13 @@ def _get_requests(root_path, is_downloading_all, is_videos_only):
 async def _download_photo(root_path, directory, photo):
     """Downloads the photo bytes for `photo` to the corresponding filepath."""
 
-    url, data = download_photo_bytes(photo)
+    url, did_update_exif, data = download_photo_bytes(photo)
 
     filename = _get_download_filename(photo, url)
     path = _get_download_path(root_path, directory, filename)
 
     write_buffer(path, data)
-    _update_photo_entry(path, directory, photo)
+    _update_photo_entry(path, directory, photo, did_update_exif)
 
 def _get_download_path(root_path, directory, filename):
     """Returns the download file path for the photo given `root_path` and `directory`."""
@@ -105,10 +105,14 @@ def _get_download_filename(photo, url):
 
     return Path(f'{name}{extension}')
 
-def _update_photo_entry(path, directory, photo):
+def _update_photo_entry(path, directory, photo, did_update_exif):
     """Updates the photo entry on a successful download."""
 
     photo[PhotoEntryKeys.DOWNLOAD_FILE_PATH] = str(path)
+
+    if did_update_exif:
+        photo[PhotoEntryKeys.DID_UPDATE_EXIF] = True
+
     write_photo_data(directory, photo)
 
 def _is_media_video(photo):

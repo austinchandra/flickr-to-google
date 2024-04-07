@@ -7,9 +7,9 @@ def download_photo_bytes(photo):
     """Downloads the photo content and returns the url and parsed bytes."""
 
     url, raw_data = _download(photo)
-    data = updated_data_with_exif(raw_data, photo)
+    data, did_update_exif = updated_data_with_exif(raw_data, photo)
 
-    return url, data
+    return url, did_update_exif, data
 
 def _download(photo):
     """Downloads the photo content and returns the url and raw bytes."""

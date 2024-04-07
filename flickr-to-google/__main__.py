@@ -63,6 +63,7 @@ async def upload_photos(args):
     await repeated(
         google_upload_photos,
         args.videos_only,
+        args.missing_exif_only,
     )
 
 async def repeated(method, *args, count=0):
