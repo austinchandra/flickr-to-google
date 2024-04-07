@@ -37,6 +37,8 @@ def _get_requests(root_path, is_downloading_all, is_videos_only):
 
     _, directories, _ = next(os.walk(get_outputs_path()))
 
+    title_counts = {}
+
     for directory in directories:
 
         _, _, filenames = next(os.walk(get_directory_path(directory)))
@@ -46,6 +48,8 @@ def _get_requests(root_path, is_downloading_all, is_videos_only):
                 continue
 
             photo = read_photo_data(directory, filename)
+
+            title_counts[photo['title']] = title_counts.get(photo['title'], 0) + 1
 
             # Ignore photos that were not properly fetched:
             if len(photo.keys()) <= 1:
@@ -58,6 +62,10 @@ def _get_requests(root_path, is_downloading_all, is_videos_only):
                 continue
 
             requests.append(_download_photo(root_path, directory, photo))
+
+    for title in title_counts:
+        if title_counts[title] > 1:
+            print('Title: {}, Count: {}'.format(title, title_counts[title]))
 
     return requests
 
