@@ -30,8 +30,3 @@ parser.add_argument('-p', '--path', required=is_method_download_photos)
 parser.add_argument('--download-all', action=argparse.BooleanOptionalAction)
 
 parser.add_argument('-v', '--videos-only', action=argparse.BooleanOptionalAction)
-
-# This field is set on downloading an image with missing EXIF data in order to identify photos to
-# re-upload to Google Photos. While it is possible to re-upload all photos, this reduces the
-# downloading required (as a download is required to check the image's metadata).
-parser.add_argument('-e', '--missing-exif-only', action=argparse.BooleanOptionalAction)

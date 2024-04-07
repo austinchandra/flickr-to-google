@@ -22,10 +22,10 @@ from common.log import print_timestamped, print_separator
 from .photo_content import upload_content_batch
 from .photo_bytes import upload_bytes_batch
 
-async def upload_photos(is_videos_only=False, is_missing_exif_only=False):
+async def upload_photos(is_videos_only=False):
     """Uploads all photos and updates the entry files, printing output summaries throughout."""
 
-    requests = _get_requests(is_videos_only, is_missing_exif_only)
+    requests = _get_requests(is_videos_only)
 
     _print_init(requests)
 
@@ -47,7 +47,7 @@ async def upload_photos(is_videos_only=False, is_missing_exif_only=False):
 
     return _reduce_response_counts(responses)
 
-def _get_requests(is_videos_only, is_missing_exif_only):
+def _get_requests(is_videos_only):
     """Returns a list of batch requests for all remaining photos."""
 
     requests = []
@@ -59,7 +59,7 @@ def _get_requests(is_videos_only, is_missing_exif_only):
 
         assert google_album_id is not None or directory == 'photostream'
 
-        photos = _get_pending_photos(directory, is_videos_only, is_missing_exif_only)
+        photos = _get_pending_photos(directory, is_videos_only)
 
         for i in range(0, len(photos), CONTENT_BATCH_LIMIT):
             batch = photos[i: i + CONTENT_BATCH_LIMIT]
@@ -74,7 +74,7 @@ def _get_requests(is_videos_only, is_missing_exif_only):
 
     return requests
 
-def _get_pending_photos(directory, is_videos_only, is_missing_exif_only):
+def _get_pending_photos(directory, is_videos_only):
     """Returns a list of photos to be uploaded within `directory`."""
 
     photos = []
@@ -91,9 +91,6 @@ def _get_pending_photos(directory, is_videos_only, is_missing_exif_only):
             continue
 
         if is_videos_only and not _is_media_video(photo):
-            continue
-
-        if is_missing_exif_only and PhotoEntryKeys.DID_UPDATE_EXIF not in photo:
             continue
 
         # Ignore photos that were not properly fetched:
