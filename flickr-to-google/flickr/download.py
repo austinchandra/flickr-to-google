@@ -66,8 +66,6 @@ async def _download_photo(root_path, directory, photo):
 
     url, data = download_photo_bytes(photo)
 
-    print('Data Size: {}'.format(len(data)))
-
     filename = _get_download_filename(photo, url)
     path = _get_download_path(root_path, directory, filename)
 
@@ -97,6 +95,11 @@ def _get_download_filename(photo, url):
     """Returns the photo filename, creating the extension from `url`."""
 
     name = photo['title']
+
+    if not name:
+        # Replace the name with the Flickr ID if none is found.
+        name = photo['id']
+
     path = urlparse(url).path
     extension = os.path.splitext(path)[1]
 
