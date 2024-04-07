@@ -94,11 +94,7 @@ def _get_download_folder(directory):
 def _get_download_filename(photo, url):
     """Returns the photo filename, creating the extension from `url`."""
 
-    name = photo['title']
-
-    if not name:
-        # Replace the name with the Flickr ID if none is found.
-        name = photo['id']
+    name = photo['id']
 
     path = urlparse(url).path
     extension = os.path.splitext(path)[1]
