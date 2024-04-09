@@ -129,6 +129,8 @@ def _print_init(requests):
     """Prints an upload initiation message."""
 
     num_photos = _parse_num_photos(requests)
+
+    print_separator()
     print_timestamped(
         'Beginning upload for {} remaining photo(s).'.format(num_photos)
     )

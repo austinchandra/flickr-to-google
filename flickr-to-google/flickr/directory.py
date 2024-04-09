@@ -69,6 +69,7 @@ def _write_photo_directory_file(photo, photoset_id=None):
 def _print_init():
     """Prints a download initiation message."""
 
+    print_separator()
     print_timestamped('Beginning to create the directory.')
 
 def _print_summary(photosets):

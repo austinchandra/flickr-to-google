@@ -159,6 +159,7 @@ def _combine_photo_fields(url, metadata):
 def _print_init(requests):
     """Prints an initialization message with a timestamp."""
 
+    print_separator()
     print_timestamped(
         'Beginning to download metadata for {} photo(s).'.format(len(requests))
     )

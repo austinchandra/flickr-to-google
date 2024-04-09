@@ -75,5 +75,5 @@ def _print_chunk_summary(responses):
     """Prints a summary for each chunk of downloading."""
 
     print_timestamped(
-        'Downloaded photoset data for {} albums.'.format(len(responses))
+        'Downloaded photoset data for {} album(s).'.format(len(responses))
     )
