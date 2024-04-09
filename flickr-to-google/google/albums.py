@@ -26,9 +26,9 @@ async def create_albums():
     # Run this synchronously, as Google Photos disallows concurrent writes.
     responses = [await request for request in requests]
 
-    _print_summary(responses, requests)
+    _print_summary(responses)
 
-    return _get_proportion_created(responses, requests)
+    return _get_created_count(responses)
 
 def _get_requests():
     """Returns a list of unfulfilled album creation requests."""
@@ -99,21 +99,21 @@ def _print_init(requests):
         'Beginning to create {} remaining album(s).'.format(len(requests))
     )
 
-def _print_summary(responses, requests):
+def _print_summary(responses):
     """Prints a final upload summary."""
 
-    num_created, num_attempted = _get_proportion_created(responses, requests)
+    num_created, num_attempted = _get_created_count(responses)
 
     print_separator()
     print_timestamped(
-        f'Created {num_created} out of {num_attempted} remaining album(s).'
+        'Created {} out of {} remaining album(s).'.format(num_created, num_attempted)
     )
 
-def _get_proportion_created(responses, requests):
-    """Returns a `(num_created, num_attempted)` tuple given `responses` and `requests`."""
+def _get_created_count(responses):
+    """Returns a tuple with the number of albums created and attempted."""
 
     num_created = len([r for r in responses if r is not None])
-    num_attempted = len(requests)
+    num_attempted = len(responses)
 
-    return (num_created, num_attempted)
+    return num_created, num_attempted
 
