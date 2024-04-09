@@ -3,6 +3,7 @@ install:
 
 clean:
 	rm -rf ~/.flickr-to-google/outputs
+	rm ~/.flickr-to-google/google_token.json
 
 clean-all:
 	rm -rf ~/.flickr-to-google/

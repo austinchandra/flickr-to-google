@@ -23,12 +23,17 @@ async def download_photos(path, is_downloading_all=False, is_videos_only=False):
 
     _print_init(requests)
 
+    responses = []
+
     for i in range(0, len(requests), REQUESTS_BATCH_SIZE):
         batch = requests[i:i + REQUESTS_BATCH_SIZE]
-        await asyncio.gather(*batch)
-        _print_batch_summary(batch)
+        batch_responses = await asyncio.gather(*batch)
+        _print_batch_summary(batch_responses)
+        responses += batch_responses
 
-    _print_summary(requests)
+    _print_summary(responses)
+
+    return _get_downloaded_count(responses)
 
 def _get_requests(root_path, is_downloading_all, is_videos_only):
     """Returns a list of requests for all remaining photos."""
@@ -64,13 +69,18 @@ def _get_requests(root_path, is_downloading_all, is_videos_only):
 async def _download_photo(root_path, directory, photo):
     """Downloads the photo bytes for `photo` to the corresponding filepath."""
 
-    url, did_update_exif, data = download_photo_bytes(photo)
+    url, data, did_update_exif = download_photo_bytes(photo)
+
+    if data is None:
+        return None
 
     filename = _get_download_filename(photo, url)
     path = _get_download_path(root_path, directory, filename)
 
     write_buffer(path, data)
     _update_photo_entry(path, directory, photo, did_update_exif)
+
+    return photo
 
 def _get_download_path(root_path, directory, filename):
     """Returns the download file path for the photo given `root_path` and `directory`."""
@@ -116,6 +126,14 @@ def _is_media_video(photo):
 
     return photo['media'] == 'video'
 
+def _get_downloaded_count(responses):
+    """Returns a tuple with the number of photos downloaded and attempted."""
+
+    num_downloaded = len([r for r in responses if r is not None])
+    num_attempted = len(responses)
+
+    return num_downloaded, num_attempted
+
 def _print_init(requests):
     """Prints a download initiation message."""
 
@@ -123,18 +141,22 @@ def _print_init(requests):
         'Beginning download for {} remaining item(s).'.format(len(requests))
     )
 
-def _print_batch_summary(batch):
+def _print_batch_summary(responses):
     """Prints an intermediate download summary."""
 
+    num_downloaded, num_attempted = _get_downloaded_count(responses)
+
     print_separator()
     print_timestamped(
-        'Downloaded {} item(s).'.format(len(batch))
+        'Downloaded {} of {} item(s).'.format(num_downloaded, num_attempted)
     )
 
-def _print_summary(requests):
+def _print_summary(responses):
     """Prints a final download summary."""
+
+    num_downloaded, num_attempted = _get_downloaded_count(responses)
 
     print_separator()
     print_timestamped(
-        'Downloaded {} remaining item(s).'.format(len(requests))
+        'Downloaded {} of {} remaining item(s).'.format(num_downloaded, num_attempted)
     )

@@ -53,7 +53,8 @@ def authenticate():
     authenticate_google_user()
 
 async def download_photos(args):
-    await flickr_download_photos(
+    await repeated(
+        flickr_download_photos,
         args.path,
         args.download_all,
         args.videos_only,

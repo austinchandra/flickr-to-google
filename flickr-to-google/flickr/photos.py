@@ -160,7 +160,7 @@ def _print_init(requests):
     """Prints an initialization message with a timestamp."""
 
     print_timestamped(
-        'Beginning to download metadata for {} photos.'.format(len(requests))
+        'Beginning to download metadata for {} photo(s).'.format(len(requests))
     )
 
 def _get_proportion_downloaded(responses):
@@ -177,7 +177,7 @@ def _print_download_proportion(responses):
     num_succeeded, num_attempted = _get_proportion_downloaded(responses)
 
     print_timestamped(
-        f'Downloaded photo data for {num_succeeded} of {num_attempted} images.'
+        f'Downloaded photo data for {num_succeeded} of {num_attempted} image(s).'
     )
 
 def _print_summary(responses):

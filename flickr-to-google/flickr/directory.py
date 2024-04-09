@@ -76,5 +76,5 @@ def _print_summary(photosets):
 
     print_separator()
     print_timestamped(
-        'Created the directory with {} albums.'.format(len(photosets))
+        'Created the directory with {} album(s).'.format(len(photosets))
     )
