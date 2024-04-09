@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from functools import reduce
 
-from .rest import post
 from .authenticate import authenticate_user
 from .constants import (
     PhotoEntryKeys,

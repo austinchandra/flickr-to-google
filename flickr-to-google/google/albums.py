@@ -57,6 +57,9 @@ async def _create_album(album):
     payload = _create_request_payload(album)
     response = await post(Endpoints.ALBUMS, data=payload)
 
+    if response is None:
+        return None
+
     photo_album_id = _parse_album_id(response)
 
     if photo_album_id is not None:

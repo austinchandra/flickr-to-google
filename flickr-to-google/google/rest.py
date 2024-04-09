@@ -49,5 +49,8 @@ async def _send_request(method, url, headers, **kwargs):
         **kwargs
     )
 
-    async with httpx.AsyncClient() as client:
-        return await client.send(request)
+    try:
+        async with httpx.AsyncClient() as client:
+            return await client.send(request)
+    except Exception:
+        return None

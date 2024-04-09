@@ -30,6 +30,9 @@ async def upload_bytes(photo):
 
     response = await post(Endpoints.BYTE_UPLOADS, headers, data=content)
 
+    if response is None:
+        return None
+
     upload_token = _parse_upload_token(response)
 
     if upload_token is not None:

@@ -13,6 +13,9 @@ async def upload_content_batch(batch, album_id):
     content = _create_request_payload(album_id, batch)
     response = await post(Endpoints.BATCH_CREATE, json=content)
 
+    if response is None:
+        return None
+
     photos = _get_uploaded_photos(batch, response)
 
     return photos
