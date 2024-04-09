@@ -77,6 +77,7 @@ async def _download_photo(root_path, directory, photo):
     filename = _get_download_filename(photo, url)
     path = _get_download_path(root_path, directory, filename)
 
+    # Throw on failure, as further writes are likely to fail.
     write_buffer(path, data)
     _update_photo_entry(path, directory, photo, did_update_exif)
 

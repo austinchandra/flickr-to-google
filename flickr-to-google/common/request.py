@@ -20,19 +20,24 @@ def _download(photo):
 
     cookies = _get_request_cookies(photo)
 
-    response = httpx.get(
-        photo['url'],
-        follow_redirects=True,
-        cookies=cookies
-    )
+    request_url = photo['url']
 
-    url = str(response.url)
-    data = response.content
+    try:
+        response = httpx.get(
+            request_url,
+            follow_redirects=True,
+            cookies=cookies
+        )
 
-    if response.status_code != 200:
-        return url, None
+        url = str(response.url)
+        data = response.content
 
-    return url, data
+        if response.status_code != 200:
+            return url, None
+
+        return url, data
+    except Exception:
+        return request_url, None
 
 def _get_request_cookies(photo):
     """Returns the cookies required to fetch `photo`."""
