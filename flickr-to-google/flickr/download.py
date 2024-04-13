@@ -95,20 +95,23 @@ def _get_download_path(root_path, directory, filename):
 def _get_download_folder(directory):
     """Returns the name of the directory on the filesystem."""
 
-    if directory == 'photostream':
+    if _is_directory_photostream(directory):
         return 'Photostream'
 
     album = read_album_metadata(directory)
 
-    return album['title']
+    # Use ID in case the title is poorly formatted.
+    # TODO: Clean up excess calls to disk
+
+    return album['id']
 
 def _get_download_filename(photo, url):
     """Returns the photo filename, creating the extension from `url`."""
 
-    name = photo['id']
+    # Use ID in case the title is poorly formatted.
 
-    path = urlparse(url).path
-    extension = os.path.splitext(path)[1]
+    name = photo['id']
+    extension = _parse_extension_from_url(url)
 
     return Path(f'{name}{extension}')
 
@@ -126,6 +129,19 @@ def _is_media_video(photo):
     """Returns a boolean indicating whether the media item is a video."""
 
     return photo['media'] == 'video'
+
+def _parse_extension_from_url(url):
+    """Returns the extension (e.g. .jpg or .mov) from `url`, assuming that `url` is well-formed."""
+
+    path = urlparse(url).path
+    extension = os.path.splitext(path)[1]
+
+    return extension
+
+def _is_directory_photostream(directory):
+    """Returns a boolean indicating whether `directory` is the photostream."""
+
+    return directory == 'photostream'
 
 def _get_downloaded_count(responses):
     """Returns a tuple with the number of photos downloaded and attempted."""
