@@ -9,5 +9,4 @@ class PhotoEntryKeys(StrEnum):
     DID_UPDATE_EXIF = 'did_update_exif'
 
 QUERIES_PER_PAGE = 500
-REQUESTS_BATCH_SIZE = 30
-
+REQUESTS_BATCH_SIZE = 10
