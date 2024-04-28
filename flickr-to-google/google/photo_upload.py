@@ -21,10 +21,18 @@ from common.log import print_timestamped, print_separator
 from .photo_content import upload_content_batch
 from .photo_bytes import upload_bytes_batch
 
-async def upload_photos(is_videos_only=False, is_missing_exif_only=False):
+async def upload_photos(
+    is_videos_only=False,
+    is_missing_exif_only=False,
+    is_uploading_all=False,
+):
     """Uploads all photos and updates the entry files, printing output summaries throughout."""
 
-    requests = _get_requests(is_videos_only, is_missing_exif_only)
+    requests = _get_requests(
+        is_videos_only,
+        is_missing_exif_only,
+        is_uploading_all,
+    )
 
     _print_init(requests)
 
@@ -46,7 +54,11 @@ async def upload_photos(is_videos_only=False, is_missing_exif_only=False):
 
     return _reduce_response_counts(responses)
 
-def _get_requests(is_videos_only, is_missing_exif_only):
+def _get_requests(
+    is_videos_only,
+    is_missing_exif_only,
+    is_uploading_all,
+):
     """Returns a list of batch requests for all remaining photos."""
 
     requests = []
@@ -58,7 +70,12 @@ def _get_requests(is_videos_only, is_missing_exif_only):
 
         assert google_album_id is not None or directory == 'photostream'
 
-        photos = _get_pending_photos(directory, is_videos_only, is_missing_exif_only)
+        photos = _get_pending_photos(
+            directory,
+            is_videos_only,
+            is_missing_exif_only,
+            is_uploading_all,
+        )
 
         for i in range(0, len(photos), CONTENT_BATCH_LIMIT):
             batch = photos[i: i + CONTENT_BATCH_LIMIT]
@@ -73,7 +90,12 @@ def _get_requests(is_videos_only, is_missing_exif_only):
 
     return requests
 
-def _get_pending_photos(directory, is_videos_only, is_missing_exif_only):
+def _get_pending_photos(
+    directory,
+    is_videos_only,
+    is_missing_exif_only,
+    is_uploading_all,
+):
     """Returns a list of photos to be uploaded within `directory`."""
 
     photos = []
@@ -86,7 +108,7 @@ def _get_pending_photos(directory, is_videos_only, is_missing_exif_only):
 
         photo = read_photo_data(directory, filename)
 
-        if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo:
+        if PhotoEntryKeys.GOOGLE_MEDIA_ID in photo and not is_uploading_all:
             continue
 
         if is_videos_only and not _is_media_video(photo):
@@ -108,6 +130,9 @@ async def _upload_photo_batch(directory, album_id, batch):
 
     uploaded_batch = await upload_bytes_batch(batch)
     photos = await upload_content_batch(uploaded_batch, album_id)
+
+    print('Batch uploaded photos:')
+    print(photos)
 
     for photo in photos:
         write_photo_data(directory, photo)

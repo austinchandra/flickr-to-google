@@ -32,6 +32,8 @@ def _download(photo):
         url = str(response.url)
         data = response.content
 
+        print(len(data))
+
         if response.status_code != 200:
             return url, None
 

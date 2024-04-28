@@ -24,6 +24,7 @@ async def create_albums():
     _print_init(requests)
 
     # Run this synchronously, as Google Photos disallows concurrent writes.
+    # TODO: Should add a delay between batches of requests to avoid triggering rate-limits.
     responses = [await request for request in requests]
 
     _print_summary(responses)

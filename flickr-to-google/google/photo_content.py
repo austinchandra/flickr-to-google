@@ -16,7 +16,13 @@ async def upload_content_batch(batch, album_id):
     if response is None:
         return None
 
+    print('Uploading content, response:')
+    print(response)
+
     photos = _get_uploaded_photos(batch, response)
+
+    print('Content upload photos:')
+    print(photos)
 
     return photos
 
@@ -76,6 +82,8 @@ def _parse_results(response):
 
     if response.status_code != 200:
         return []
+
+    print(response.json())
 
     return response.json()['newMediaItemResults']
 
