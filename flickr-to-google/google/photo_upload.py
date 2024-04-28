@@ -131,9 +131,6 @@ async def _upload_photo_batch(directory, album_id, batch):
     uploaded_batch = await upload_bytes_batch(batch)
     photos = await upload_content_batch(uploaded_batch, album_id)
 
-    print('Batch uploaded photos:')
-    print(photos)
-
     for photo in photos:
         write_photo_data(directory, photo)
 

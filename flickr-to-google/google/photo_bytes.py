@@ -17,9 +17,6 @@ async def upload_bytes_batch(batch):
         *[upload_bytes(photo) for photo in batch]
     )
 
-    print('Batch photos with uploaded bytes:')
-    print(photos)
-
     return [photo for photo in photos if photo is not None]
 
 async def upload_bytes(photo):
@@ -32,9 +29,6 @@ async def upload_bytes(photo):
         return None
 
     response = await post(Endpoints.BYTE_UPLOADS, headers, data=content)
-
-    print('Uploading bytes, response:')
-    print(response)
 
     if response is None:
         return None
