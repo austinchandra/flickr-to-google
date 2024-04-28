@@ -4,7 +4,7 @@ def print_timestamped(contents):
     """Prints a timestamp-prefixed text string."""
 
     timestamp = _get_formatted_timestamp()
-    print(f'{timestamp}:\t{contents}')
+    print(f'{timestamp}:\t{contents}', flush=True)
 
 def print_separator():
     """Prints a separator line."""
